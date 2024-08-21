@@ -1,6 +1,4 @@
 #include <windows.h>
-#include <vector>
-#include <format>
 #include "toml++/toml.hpp"
 #include "nya_commonhooklib.h"
 
