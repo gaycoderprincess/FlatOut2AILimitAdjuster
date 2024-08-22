@@ -14,7 +14,7 @@ struct tPlayerSettings {
 	uint8_t _30[0x14];
 };
 static_assert(sizeof(tPlayerSettings) == 0x44);
-tPlayerSettings* nPlayerSettingsArray = nullptr;
+tPlayerSettings* nPlayerSettingsArray = nullptr; // game + 0x5F4
 int* nCameraArray43 = nullptr;
 int* nCameraArray44 = nullptr;
 int* nCameraArray45 = nullptr;
@@ -264,6 +264,17 @@ void __attribute__((naked)) ReadPlayerSettingsASM8() {
 		"jmp %0\n\t"
 			:
 			: "m" (ReadPlayerSettingsASM8_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+uintptr_t ReadPlayerSettingsASM9_jmp = 0x45A4A1;
+void __attribute__((naked)) ReadPlayerSettingsASM9() {
+	__asm__ (
+		"mov edi, %1\n\t"
+		"add edi, 0x20\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsASM9_jmp), "m" (nPlayerSettingsArray)
 	);
 }
 
@@ -1254,6 +1265,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::Patch<uint8_t>(0x45CD01 + 1, nNumAI);
 			NyaHookLib::Patch(0x45CD15 + 2, &nNumPlayers);
 			NyaHookLib::Patch<uint8_t>(0x45DC4D + 2, nNumPlayers);
+			NyaHookLib::Patch<uint8_t>(0x45AB76 + 2, nNumPlayers); // playerinfo db init
+			NyaHookLib::Patch<uint8_t>(0x45A5D7 + 2, nNumPlayers); // playerinfo db write
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E26D, &AISortingThingASM1);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E372, &AISortingThingASM2);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E390, &AISortingThingASM3);
@@ -1280,6 +1293,7 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x498DD5, &ReadPlayerSettingsASM6);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x498EF8, &ReadPlayerSettingsASM7);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45CD6F, &ReadPlayerSettingsASM8);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45A49B, &ReadPlayerSettingsASM9);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E404, &ClearPlayerSettingsASM);
 
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472663, &PlayerUpdaterASM1);
@@ -1462,6 +1476,16 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472C0E, &PlayerHostCollisionBoundsASM10);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472CB8, &PlayerHostCollisionBoundsASM11);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472CF1, &PlayerHostCollisionBoundsASM12);
+
+			// FastestLapTime is at game + 0x544, array of 8?
+			// best wrecker id is at game + 0x564
+			// blast master id is at game + 0x568
+			// fastest lap id is at game + 0x56C
+			// daredevil id is at game + 0x570
+			// written to in a lot of places but definitely overflowed
+			// 0047D732 is the final result, likely overflowed
+			// correct one seems to be 479F68
+			NyaHookLib::Patch<uint8_t>(0x47D6CB, 0xEB);
 
 			// 00472886 actually processes tires, that's funny :3
 		} break;
