@@ -36,6 +36,8 @@ tSomeGameStruct* nSomeGameStruct = nullptr;
 
 int* nSomeRenderArray = nullptr; // scene + 0x1C4
 
+float* nSomeDerbyScoringArray = nullptr;
+
 void SetDefaultAISorting() {
 	for (int i = 0; i < nNumPlayers; i++) {
 		nAISortingThing[i] = i + 1;
@@ -607,8 +609,8 @@ void __attribute__((naked)) PlayerUpdaterASM20() {
 		"push ebp\n\t"
 		"mov ebp, %2\n\t" // v44
 		"mov esi, [ebp+ebx*4]\n\t"
-		"mov ecx, ebp\n\t"
 		"pop ebp\n\t"
+		"mov ecx, ebp\n\t"
 		"jmp %0\n\t"
 			:
 			: "m" (PlayerUpdaterASM20_jmp), "m" (nCameraArray43), "m" (nCameraArray44), "m" (nCameraArray45)
@@ -780,6 +782,102 @@ void __attribute__((naked)) ScoreboardArrayASM4() {
 	);
 }
 
+uintptr_t DerbyScoringArrayASM1_jmp = 0x47B93F;
+void __attribute__((naked)) DerbyScoringArrayASM1() {
+	__asm__ (
+		"push ebp\n\t"
+		"mov ebp, %1\n\t"
+		"mov [ebp+ebx*4], eax\n\t"
+		"mov [ebp+ebx*4+0x20], eax\n\t"
+		"pop ebp\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (DerbyScoringArrayASM1_jmp), "m" (nSomeDerbyScoringArray)
+	);
+}
+
+uintptr_t DerbyScoringArrayASM2_jmp = 0x47B8F4;
+void __attribute__((naked)) DerbyScoringArrayASM2() {
+	__asm__ (
+		"push ebp\n\t"
+		"mov ebp, %1\n\t"
+		"mov dword ptr [ebp+ebx*4], 0x3F000000\n\t"
+		"pop ebp\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (DerbyScoringArrayASM2_jmp), "m" (nSomeDerbyScoringArray)
+	);
+}
+
+uintptr_t DerbyScoringArrayASM3_jmp = 0x47B8F4;
+void __attribute__((naked)) DerbyScoringArrayASM3() {
+	__asm__ (
+		"push ebp\n\t"
+		"mov ebp, %1\n\t"
+		"fstp dword ptr [ebp+ebx*4]\n\t"
+		"pop ebp\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (DerbyScoringArrayASM3_jmp), "m" (nSomeDerbyScoringArray)
+	);
+}
+
+uintptr_t DerbyScoringArrayASM4_jmp = 0x47B930;
+void __attribute__((naked)) DerbyScoringArrayASM4() {
+	__asm__ (
+		"push ebp\n\t"
+		"mov ebp, %1\n\t"
+		"mov dword ptr [ebp+ebx*4+0x20], 0x3F000000\n\t"
+		"pop ebp\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (DerbyScoringArrayASM4_jmp), "m" (nSomeDerbyScoringArray)
+	);
+}
+
+uintptr_t DerbyScoringArrayASM5_jmp = 0x47B93F;
+void __attribute__((naked)) DerbyScoringArrayASM5() {
+	__asm__ (
+		"push ebp\n\t"
+		"mov ebp, %1\n\t"
+		"fstp dword ptr [ebp+ebx*4+0x20]\n\t"
+		"pop ebp\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (DerbyScoringArrayASM5_jmp), "m" (nSomeDerbyScoringArray)
+	);
+}
+
+uintptr_t DerbyScoringArrayASM6_jmp = 0x47BAF7;
+void __attribute__((naked)) DerbyScoringArrayASM6() {
+	__asm__ (
+		"push ebp\n\t"
+		"mov ebp, %1\n\t"
+		"fcomp dword ptr [ebp+edi*4]\n"
+		"pop ebp\n\t"
+		"fnstsw ax\n"
+		"test ah, 0x41\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (DerbyScoringArrayASM6_jmp), "m" (nSomeDerbyScoringArray)
+	);
+}
+
+uintptr_t DerbyScoringArrayASM7_jmp = 0x47BC57;
+void __attribute__((naked)) DerbyScoringArrayASM7() {
+	__asm__ (
+		"push ebp\n\t"
+		"mov ebp, %1\n\t"
+		"fcomp dword ptr [ebp+edi*4+0x20]\n"
+		"pop ebp\n\t"
+		"fnstsw ax\n"
+		"test ah, 0x41\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (DerbyScoringArrayASM7_jmp), "m" (nSomeDerbyScoringArray)
+	);
+}
+
 void __fastcall ResetCrashBonuses(uintptr_t pPlayer) {
 	auto bonuses = (tPlayerBonuses*)(pPlayer + nNewPlayerStructCustomVarsBegin);
 	for (int i = 0; i < nNumPlayers; i++) {
@@ -846,6 +944,54 @@ void __attribute__((naked)) SomeGameStructASM1() {
 	);
 }
 
+class Player {
+public:
+	virtual void _vf0() = 0;
+	virtual void _vf1() = 0;
+	virtual void _vf2() = 0;
+	virtual void _vf3() = 0;
+	virtual void _vf4() = 0;
+	virtual void _vf5() = 0;
+	virtual void _vf6() = 0;
+	virtual void _vf7() = 0;
+	virtual void _vf8() = 0;
+	virtual void _vf9() = 0;
+	virtual void _vf10() = 0;
+	virtual void _vf11() = 0;
+	virtual void _vf12() = 0;
+	virtual void _vf13() = 0;
+	virtual void _vf14() = 0;
+	virtual void _vf15() = 0;
+	virtual void _vf16() = 0;
+	virtual void _vf17() = 0;
+	virtual void _vf18() = 0;
+	virtual void _vf19() = 0;
+	virtual void TriggerEvent(int* properties) = 0;
+};
+
+void __fastcall GhostForMoreOpponents(Player* pPlayer) {
+	if (nNumPlayers > 8) {
+		int eventProperties[] = {6036, 0, 0, 0, 1000};
+		pPlayer->TriggerEvent(eventProperties);
+	}
+}
+
+uintptr_t GhostForMoreOpponentsASM_jmp = 0x42764C;
+void __attribute__((naked)) __fastcall GhostForMoreOpponentsASM() {
+	__asm__ (
+		"pushad\n\t"
+		"mov ecx, [edi+0x463C]\n\t"
+		"call %1\n\t"
+		"popad\n\t"
+		"mov ebp, [edi+0x1BEC]\n\t"
+		"cmp ebp, [edi+0x1BF0]\n\t"
+		"mov dword ptr [edi+0x6AA0], 0\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (GhostForMoreOpponentsASM_jmp), "i" (GhostForMoreOpponents)
+	);
+}
+
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
@@ -869,10 +1015,10 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			nPlayerScoreboardArray = new tScoreboardPlayer[nNumPlayers];
 			nSomeRenderArray = new int[nNumPlayers * 32];
 			nSomeGameStruct = new tSomeGameStruct[nNumPlayers];
+			nSomeDerbyScoringArray = new float[nNumPlayers * 2];
 
 			NyaHookLib::Patch<uint8_t>(0x45CD01 + 1, nNumAI);
-			NyaHookLib::Patch(0x45CD15 + 2, &nNumAI);
-			NyaHookLib::Patch<uint8_t>(0x45CD1B, 0x90);
+			NyaHookLib::Patch(0x45CD15 + 2, &nNumPlayers);
 			NyaHookLib::Patch<uint8_t>(0x45DC4D + 2, nNumPlayers);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E26D, &AISortingThingASM1);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E372, &AISortingThingASM2);
@@ -936,6 +1082,14 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4BDB38, &ScoreboardArrayASM3);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4BDB50, &ScoreboardArrayASM4);
 
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47B937, &DerbyScoringArrayASM1);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47B8EC, &DerbyScoringArrayASM2);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47B8DE, &DerbyScoringArrayASM3);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47B928, &DerbyScoringArrayASM4);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47B922, &DerbyScoringArrayASM5);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47BAEE, &DerbyScoringArrayASM6);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47BC4E, &DerbyScoringArrayASM7);
+
 			// crash at 45c680 when finishing a lap
 			// game + 0x904 seems to be overwritten at 0045DE03?
 			// it's aiplayer init, seems to be an array in game for ai
@@ -990,7 +1144,7 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			// size 0x38, seems fixed size
 			// edi in this case seems to be car+0x1B0
 			//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x569350, 0x569D75);
-			if (nNumPlayers > 11) NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x5697D3, 0x569CDA);
+			if (nNumPlayers > 12) NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x5697D3, 0x569CDA);
 
 			// 33 and above runs out of listnodes at 57B991
 			if (nNumPlayers > 31) {
@@ -1027,6 +1181,14 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			// 599e7a crashed on 126 player desert oil field
 			// 43ccfb right after the loading screen on 126 player midwest ranch 1
 			// 5ad2d8 on redpine river, feels more like lack of LAA than anything code related, this is a texture render function
+
+			// derby crashes at 47b3bc after start race
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47B39E, 0x47B3FF);
+
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x427636, &GhostForMoreOpponentsASM);
+			NyaHookLib::Patch<uint8_t>(0x46C89A, 0xEB); // allow ai to ghost
+
+			// 00472886 actually processes tires, that's funny :3
 		} break;
 		default:
 			break;
