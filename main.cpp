@@ -2,6 +2,10 @@
 #include "toml++/toml.hpp"
 #include "nya_commonhooklib.h"
 
+const size_t nNewPlayerStructSize = 0x2500;
+const size_t nNewPlayerStructCustomVarsBegin = 0xF50; // sizeof AIPlayer
+//const size_t nNewPlayerStructCustomVarsBegin = 0x55C; // sizeof AIPlayer
+
 int nNumAI = 7;
 int nNumPlayers = 8;
 int* nAISortingThing = nullptr;
@@ -18,6 +22,9 @@ int* nCameraArray44 = nullptr;
 int* nCameraArray45 = nullptr;
 int* nScoreboardArray108 = nullptr;
 int* nScoreboardArray110 = nullptr;
+struct tPlayerBonuses {
+	uint32_t values[7];
+};
 
 struct tScoreboardPlayer {
 	uint8_t _0[0x8];
@@ -768,6 +775,43 @@ void __attribute__((naked)) ScoreboardArrayASM4() {
 	);
 }
 
+void __fastcall ResetCrashBonuses(uintptr_t pPlayer) {
+	auto bonuses = (tPlayerBonuses*)(pPlayer + nNewPlayerStructCustomVarsBegin);
+	for (int i = 0; i < nNumPlayers; i++) {
+		bonuses[i].values[0] = 0; // 55C
+		bonuses[i].values[1] = 0; // 560
+		bonuses[i].values[2] = -10000; // 564
+		bonuses[i].values[3] = -60000; // 568
+		bonuses[i].values[4] = -60000; // 56C
+		bonuses[i].values[5] = -60000; // 570
+		bonuses[i].values[6] = -999999; // 574
+	}
+}
+
+void __attribute__((naked)) ResetCrashBonusesASM() {
+	__asm__ (
+		"pushad\n\t"
+		"mov ecx, eax\n\t"
+		"call %0\n\t"
+		"popad\n\t"
+		"ret\n\t"
+			:
+			: "i" (ResetCrashBonuses)
+	);
+}
+
+uintptr_t WriteCrashBonusesASM_jmp = 0x46E481;
+void __attribute__((naked)) WriteCrashBonusesASM() {
+	__asm__ (
+		"mov esi, edi\n\t"
+		"imul esi, 0x1C\n\t"
+		"add esi, %1\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (WriteCrashBonusesASM_jmp), "m" (nNewPlayerStructCustomVarsBegin)
+	);
+}
+
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
@@ -856,10 +900,51 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4BDB38, &ScoreboardArrayASM3);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4BDB50, &ScoreboardArrayASM4);
 
+			NyaHookLib::Patch(0x45DCE6 + 1, nNewPlayerStructSize); // local player
+			NyaHookLib::Patch(0x45DDC7 + 1, nNewPlayerStructSize); // ai player
+			NyaHookLib::Patch(0x45DA8B + 1, nNewPlayerStructSize); // network player
+
+			// bonus array starts at +55C off of player
+			// custom vars should therefore begin at +55C, size 0x380 for 32 players, size 0x1C each
+			// bonus relocation
+			NyaHookLib::Patch(0x46E3E3 + 2, nNewPlayerStructCustomVarsBegin);
+			NyaHookLib::Patch(0x46E65F + 2, nNewPlayerStructCustomVarsBegin + 0x18); // +574
+			NyaHookLib::Patch(0x46DE81 + 2, nNewPlayerStructCustomVarsBegin + 4); // +560
+			NyaHookLib::Patch(0x46DE0C + 3, nNewPlayerStructCustomVarsBegin + 0xC); // +568
+			NyaHookLib::Patch(0x46DE1F + 2, nNewPlayerStructCustomVarsBegin + 0xC); // +568
+			NyaHookLib::Patch(0x46E3E9 + 1, nNumPlayers);
+			NyaHookLib::Patch(0x46E665 + 4, nNumPlayers);
+			NyaHookLib::Patch(0x46DEA2 + 4, nNumPlayers);
+			NyaHookLib::Patch<uint8_t>(0x46DE72 + 2, nNumPlayers);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46E260, &ResetCrashBonusesASM);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46E47B, &WriteCrashBonusesASM);
+			// crashes are later calculated at 46E516, 46E973, 46E505, 46E513, 46E986
+			// 46E973 is AWFUL
+
+			NyaHookLib::Patch(0x42E1D2 + 2, nNumPlayers * 0xE0);
+			NyaHookLib::Patch(0x42E1DD + 1, nNumPlayers * 0xE0);
+			NyaHookLib::Patch(0x42E1F1 + 1, nNumPlayers * 0xE0);
+			NyaHookLib::Patch(0x42E20A + 2, nNumPlayers * 0x1C0);
+			NyaHookLib::Patch(0x42E218 + 1, nNumPlayers * 0x1C0);
+			NyaHookLib::Patch(0x42E230 + 1, nNumPlayers * 0x1C0);
+			// 42E19C array is an int8
+
+			// bonus stuff crashes at 46E444
+			// player->0x33C->0x2F0->0x34 is corrupt?
+			// 33C is inited at 0046B71B, car ptr, static alloc for 0x700, that'd be 0xE0 per player?
+			// doesn't seem to corrupt for the first 8 cars
+			// 171CE590+2F0 -> 0 -> 0
+			// written to at 00569CC9 and 004293AA
+			// the one at 004293AA seems normal, inits the array
+			// the other one isn't done for the player car, seems odd
+			// removing it fixes the issue, seems to have something to do with collisions
+			//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x569350, 0x569D75);
+			//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x569AE1, 0x569CDA);
+
 			// temporary removal of some stuff related to bonuses
-			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46D786, 0x46D877);
-			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x409509, 0x46E058);
-			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x46DCAB, 0x46E058);
+			//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46D786, 0x46D877);
+			//NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x409509, 0x46E058);
+			//NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x46DCAB, 0x46E058);
 		} break;
 		default:
 			break;
