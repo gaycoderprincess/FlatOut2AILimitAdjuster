@@ -20,23 +20,19 @@ int* nCameraArray44 = nullptr;
 int* nCameraArray45 = nullptr;
 int* nScoreboardArray108 = nullptr;
 int* nScoreboardArray110 = nullptr;
+int* nSomeRenderArray = nullptr; // scene + 0x1C4
+float* nSomeDerbyScoringArray = nullptr;
 struct tPlayerBonuses {
 	uint32_t values[7];
 };
-
 struct tScoreboardPlayer {
 	uint8_t _0[0x8];
 };
 tScoreboardPlayer* nPlayerScoreboardArray = nullptr;
-
 struct tSomeGameStruct {
 	uint8_t _0[0x44];
 };
 tSomeGameStruct* nSomeGameStruct = nullptr;
-
-int* nSomeRenderArray = nullptr; // scene + 0x1C4
-
-float* nSomeDerbyScoringArray = nullptr;
 
 void SetDefaultAISorting() {
 	for (int i = 0; i < nNumPlayers; i++) {
@@ -1138,20 +1134,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::Patch(0x42E230 + 1, nNumPlayers * 0x1C0);
 			// 42E19C array is an int8
 
-			// bonus stuff crashes at 46E444
-			// player->0x33C->0x2F0->0x34 is corrupt?
-			// 33C is inited at 0046B71B, car ptr, static alloc for 0x700, that'd be 0xE0 per player?
-			// doesn't seem to corrupt for the first 8 cars
-			// 171CE590+2F0 -> 0 -> 0
-			// written to at 00569CC9 and 004293AA
-			// the one at 004293AA seems normal, inits the array
-			// the other one isn't done for the player car, seems odd
-			// removing it fixes the issue, seems to have something to do with collisions
-			// *(v61 + 4) = v62 + 56;
-			// size 0x38, seems fixed size
-			// edi in this case seems to be car+0x1B0
-			//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x569350, 0x569D75);
-			if (nNumPlayers > 12) NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x5697D3, 0x569CDA);
+			// this seems to be a "has collided" bool array but it's never read, only written to
+			NyaHookLib::Fill(0x46E579, 0x90, 0x46E57E - 0x46E579);
 
 			// 33 and above runs out of listnodes at 57B991
 			if (nNumPlayers > 31) {
