@@ -1482,21 +1482,21 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::Fill(0x46E579, 0x90, 0x46E57E - 0x46E579);
 
 			// 33 and above runs out of listnodes at 57B991
-			if (nNumPlayers > 31) {
+			if (nNumPlayers > 32) {
 				int listnodeCount = nNumPlayers;
 				int listnodeInitCount = listnodeCount - 1;
-				int listnodeSize = (listnodeCount * 0xC) + 0x10;
+				int listnodeSize = (listnodeCount * 0xC) + 0x4;
 				int listnodeLastOffset = listnodeSize - 0xC;
 				NyaHookLib::Patch(0x650250 + 1, listnodeSize);
 				NyaHookLib::Patch(0x650270 + 1, listnodeInitCount);
 				NyaHookLib::Patch(0x65028B + 2, listnodeLastOffset);
 			}
 			// and 58BC56
-			if (nNumPlayers > 31) {
+			if (nNumPlayers > 32) {
 				// size 128 for 32 cars
 				int listnodeCount = nNumPlayers * 4;
 				int listnodeInitCount = listnodeCount - 1;
-				int listnodeSize = (listnodeCount * 0xC) + 0x10;
+				int listnodeSize = (listnodeCount * 0xC) + 0x4;
 				int listnodeLastOffset = listnodeSize - 0xC;
 				NyaHookLib::Patch(0x6504C0 + 1, listnodeSize);
 				NyaHookLib::Patch(0x6504E0 + 1, listnodeInitCount);
@@ -1585,6 +1585,9 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			// 0047D732 is the final result, likely overflowed
 			// correct one seems to be 479F68
 			NyaHookLib::Patch<uint8_t>(0x47D6CB, 0xEB);
+
+			// crash quitting a race at 42E9C8
+			// player dtor, car->0x338, its object ptr
 
 			// 00472886 actually processes tires, that's funny :3
 		} break;
