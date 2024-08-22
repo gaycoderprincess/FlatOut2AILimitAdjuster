@@ -2,9 +2,7 @@
 #include "toml++/toml.hpp"
 #include "nya_commonhooklib.h"
 
-const size_t nNewPlayerStructSize = 0x2500;
 const size_t nNewPlayerStructCustomVarsBegin = 0xF50; // sizeof AIPlayer
-//const size_t nNewPlayerStructCustomVarsBegin = 0x55C; // sizeof AIPlayer
 
 int nNumAI = 7;
 int nNumPlayers = 8;
@@ -30,6 +28,13 @@ struct tScoreboardPlayer {
 	uint8_t _0[0x8];
 };
 tScoreboardPlayer* nPlayerScoreboardArray = nullptr;
+
+struct tSomeGameStruct {
+	uint8_t _0[0x44];
+};
+tSomeGameStruct* nSomeGameStruct = nullptr;
+
+int* nSomeRenderArray = nullptr; // scene + 0x1C4
 
 void SetDefaultAISorting() {
 	for (int i = 0; i < nNumPlayers; i++) {
@@ -812,6 +817,35 @@ void __attribute__((naked)) WriteCrashBonusesASM() {
 	);
 }
 
+uintptr_t RenderArrayASM1_jmp = 0x4C9C20;
+void __attribute__((naked)) RenderArrayASM1() {
+	__asm__ (
+		"lea eax, [ecx+ebx*8]\n\t"
+		"push ebp\n\t"
+		"mov ebp, %1\n\t"
+		"mov [ebp+eax*4], edx\n\t"
+		"pop ebp\n\t"
+		"inc ecx\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (RenderArrayASM1_jmp), "m" (nSomeRenderArray)
+	);
+}
+
+uintptr_t SomeGameStructASM1_jmp = 0x45DDF4;
+void __attribute__((naked)) SomeGameStructASM1() {
+	__asm__ (
+		"mov edx, [eax+0x340]\n\t"
+		"imul esi, 0x44\n\t"
+		"mov ebp, %1\n\t"
+		"lea ecx, [esi+ebp]\n\t"
+		"sub ecx, 0x614\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (SomeGameStructASM1_jmp), "m" (nSomeGameStruct)
+	);
+}
+
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
@@ -833,6 +867,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			nScoreboardArray108 = new int[nNumPlayers];
 			nScoreboardArray110 = new int[nNumPlayers];
 			nPlayerScoreboardArray = new tScoreboardPlayer[nNumPlayers];
+			nSomeRenderArray = new int[nNumPlayers * 32];
+			nSomeGameStruct = new tSomeGameStruct[nNumPlayers];
 
 			NyaHookLib::Patch<uint8_t>(0x45CD01 + 1, nNumAI);
 			NyaHookLib::Patch(0x45CD15 + 2, &nNumAI);
@@ -900,6 +936,17 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4BDB38, &ScoreboardArrayASM3);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4BDB50, &ScoreboardArrayASM4);
 
+			// crash at 45c680 when finishing a lap
+			// game + 0x904 seems to be overwritten at 0045DE03?
+			// it's aiplayer init, seems to be an array in game for ai
+			// cant find anywhere this is read
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45DDE8, &SomeGameStructASM1);
+
+			// rendering crashes with way too many cars, +254 off of scene ptr gets overwritten by 4C9C41
+			// cant find anywhere this is read
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4C9C3E, &RenderArrayASM1);
+
+			size_t nNewPlayerStructSize = nNewPlayerStructCustomVarsBegin + (0x1C * nNumPlayers);
 			NyaHookLib::Patch(0x45DCE6 + 1, nNewPlayerStructSize); // local player
 			NyaHookLib::Patch(0x45DDC7 + 1, nNewPlayerStructSize); // ai player
 			NyaHookLib::Patch(0x45DA8B + 1, nNewPlayerStructSize); // network player
@@ -938,13 +985,36 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			// the one at 004293AA seems normal, inits the array
 			// the other one isn't done for the player car, seems odd
 			// removing it fixes the issue, seems to have something to do with collisions
-			//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x569350, 0x569D75);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x569350, 0x569D75);
 			//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x569AE1, 0x569CDA);
 
-			// temporary removal of some stuff related to bonuses
-			//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46D786, 0x46D877);
-			//NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x409509, 0x46E058);
-			//NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x46DCAB, 0x46E058);
+			// 33 and above runs out of listnodes at 57B991
+			if (nNumPlayers > 31) {
+				int listnodeCount = nNumPlayers;
+				int listnodeInitCount = listnodeCount - 1;
+				int listnodeSize = (listnodeCount * 0xC) + 0x10;
+				int listnodeLastOffset = listnodeSize - 0xC;
+				NyaHookLib::Patch(0x650250 + 1, listnodeSize);
+				NyaHookLib::Patch(0x650270 + 1, listnodeInitCount);
+				NyaHookLib::Patch(0x65028B + 2, listnodeLastOffset);
+			}
+			// and 58BC56
+			if (nNumPlayers > 31) {
+				// size 128 for 32 cars
+				int listnodeCount = nNumPlayers * 4;
+				int listnodeInitCount = listnodeCount - 1;
+				int listnodeSize = (listnodeCount * 0xC) + 0x10;
+				int listnodeLastOffset = listnodeSize - 0xC;
+				NyaHookLib::Patch(0x6504C0 + 1, listnodeSize);
+				NyaHookLib::Patch(0x6504E0 + 1, listnodeInitCount);
+				NyaHookLib::Patch(0x6504FB + 2, listnodeLastOffset);
+			}
+
+			// 57CD40 crashes with 127 cars
+			// loading screen + 0x2C0 gets overwritten at 0057CC1E
+			//NyaHookLib::Patch<uint8_t>(0x427665, 0xEB);
+			NyaHookLib::Patch<uint16_t>(0x57CBC5, 0x9090);
+			// 472de9 crashes after a few seconds ingame at 126 opponents if you don't press start
 		} break;
 		default:
 			break;
