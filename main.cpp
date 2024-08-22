@@ -5,6 +5,7 @@
 const size_t nNewPlayerStructCustomVarsBegin = 0xF50; // sizeof AIPlayer
 
 int nNumAI = 7;
+int nNumAIProfiles = 7;
 int nNumPlayers = 8;
 int* nAISortingThing = nullptr;
 int* nInitPlayersArray = nullptr;
@@ -37,6 +38,7 @@ tSomeGameStruct* nSomeGameStruct = nullptr;
 int* nSomeCarCollisionArray209AC = nullptr;
 int* nSomeCarCollisionArray209E4 = nullptr;
 int nSomeCarCollisionArrayMaxCount = 0;
+int* nAIPortraitsArray = nullptr; // hud + 0x150
 
 void SetDefaultAISorting() {
 	for (int i = 0; i < nNumPlayers; i++) {
@@ -1227,6 +1229,96 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM12() {
 	);
 }
 
+uintptr_t AIPortraitsASM1_jmp = 0x4BF85C;
+void __attribute__((naked)) __fastcall AIPortraitsASM1() {
+	__asm__ (
+		"push edi\n\t"
+		"mov edi, %1\n\t"
+		"mov ecx, [edi+ecx*4-4]\n\t"
+		"pop edi\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (AIPortraitsASM1_jmp), "m" (nAIPortraitsArray)
+	);
+}
+
+struct tTexturePtrAssoc {
+	const char* bedName = nullptr;
+	void* outPtr = nullptr;
+};
+// 4B6500
+auto LoadTextureWithBed = (void(__stdcall*)(void*, const char*, const char*, tTexturePtrAssoc*, int, int))0x4B6500;
+void __stdcall LoadAIPortraitTextures(void* a1, const char* a2, const char* a3, tTexturePtrAssoc* a4, int a5, int a6) {
+	// load the original ones since the ai_damage_bar textures are still used from it
+	LoadTextureWithBed(a1, a2, a3, a4, a5, a6);
+
+	memset(nAIPortraitsArray, 0, (nNumAIProfiles + 1) * sizeof(int));
+
+	auto ptrAssoc = new tTexturePtrAssoc[nNumAIProfiles + 2]; // last one has to be null for it to fill properly
+	for (int i = 0; i < nNumAIProfiles; i++) {
+		auto str = new char[64];
+		snprintf(str,64,"ai_face_%d", i);
+		ptrAssoc[i].bedName = str;
+		ptrAssoc[i].outPtr = &nAIPortraitsArray[i];
+	}
+	ptrAssoc[nNumAIProfiles].bedName = "ai_face_player";
+	ptrAssoc[nNumAIProfiles].outPtr = &nAIPortraitsArray[nNumAIProfiles];
+
+	LoadTextureWithBed(a1, a2, a3, ptrAssoc, 1, 2);
+
+	for (int i = 0; i < nNumAIProfiles + 1; i++) {
+		delete[] ptrAssoc[i].bedName;
+	}
+}
+
+const wchar_t* __fastcall GetAIName(int id) {
+	int nNumNames = nNumAIProfiles;
+	const wchar_t* aNames[32] = {
+			L"JACK BENTON",
+			L"KATIE JACKSON",
+			L"SOFIA MARTINEZ",
+			L"SALLY TAYLOR",
+			L"JASON WALKER",
+			L"RAY CARTER",
+			L"FRANK MALCOV",
+			L"CURTIS WOLFE",
+			L"LEWIS DURAN",
+			L"LEI BING",
+			L"JILL RICHARDS"
+	};
+	static bool bOnce = true;
+	static wchar_t** aCustomNames = nullptr;
+	if (bOnce) {
+		aCustomNames = new wchar_t*[nNumNames];
+		memset(aCustomNames, 0, sizeof(wchar_t*)*nNumNames);
+		bOnce = false;
+	}
+
+	auto nameId = id % nNumNames;
+	if (aCustomNames[nameId]) return aCustomNames[nameId];
+
+	auto config = toml::parse_file("FlatOut2AILimitAdjuster_gcp.toml");
+	auto str = (std::string)config["names"]["AI" + std::to_string(nameId + 1)].value_or("*NULL*");
+	if (str != "*NULL*") {
+		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+		auto retStr = converter.from_bytes(str);
+		auto wchar = new wchar_t[retStr.length()+1];
+		wcscpy_s(wchar, retStr.length()+1, retStr.c_str());
+		aCustomNames[nameId] = wchar;
+		return aCustomNames[nameId];
+	}
+	return aNames[nameId];
+}
+
+void __attribute__((naked)) __fastcall GetAINameASM() {
+	__asm__ (
+		"mov ecx, eax\n\t"
+		"jmp %0\n\t"
+			:
+			: "i" (GetAIName)
+	);
+}
+
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
@@ -1238,7 +1330,7 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 
 			auto config = toml::parse_file("FlatOut2AILimitAdjuster_gcp.toml");
 			nNumAI = config["main"]["ai_count"].value_or(7);
-			int nNumAIProfiles = config["main"]["ai_profile_count"].value_or(7);
+			nNumAIProfiles = config["main"]["ai_profile_count"].value_or(7);
 			nNumPlayers = nNumAI + 1;
 			nAISortingThing = new int[nNumPlayers];
 			nInitPlayersArray = new int[nNumPlayers];
@@ -1255,12 +1347,19 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			nSomeDerbyScoringArray2 = new float[nNumPlayers];
 			nSomeCarCollisionArray209AC = new int[nNumPlayers + 1];
 			nSomeCarCollisionArray209E4 = new int[nNumPlayers + 1];
+			nAIPortraitsArray = new int[nNumAIProfiles + 1];
 
 			// setup ai profile count, offset the aicatchup and aihandicap ids
 			NyaHookLib::Patch(0x408C58 + 1, nNumAIProfiles);
 			NyaHookLib::Patch(0x408C6A + 1, nNumAIProfiles + 1);
 			NyaHookLib::Patch(0x458EC7 + 6, nNumAIProfiles);
-			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x458EDB, 0x459000);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x458EDB, 0x459000); // don't load cars.cfg
+
+			// ai faces are loaded at sub_4B8000
+			// then accessed at 004BF856
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4BF851, &AIPortraitsASM1);
+			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x4B87BC, &LoadAIPortraitTextures);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45C4B0, &GetAINameASM);
 
 			NyaHookLib::Patch<uint8_t>(0x45CD01 + 1, nNumAI);
 			NyaHookLib::Patch(0x45CD15 + 2, &nNumPlayers);

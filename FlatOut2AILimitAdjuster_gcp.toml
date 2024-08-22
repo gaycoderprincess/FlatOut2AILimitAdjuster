@@ -2,5 +2,18 @@
 # enjoy, nya~ :3
 
 [main]
-ai_count = 11
+ai_count = 31
 ai_profile_count = 7
+
+[names]
+AI1="JACK BENTON"
+AI2="KATIE JACKSON"
+AI3="SOFIA MARTINEZ"
+AI4="SALLY TAYLOR"
+AI5="JASON WALKER"
+AI6="RAY CARTER"
+AI7="FRANK MALCOV"
+AI8="CURTIS WOLFE"
+AI9="LEWIS DURAN"
+AI10="LEI BING"
+AI11="JILL RICHARDS"
