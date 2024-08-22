@@ -33,6 +33,9 @@ struct tSomeGameStruct {
 	uint8_t _0[0x44];
 };
 tSomeGameStruct* nSomeGameStruct = nullptr;
+int* nSomeCarCollisionArray209AC = nullptr;
+int* nSomeCarCollisionArray209E4 = nullptr;
+int nSomeCarCollisionArrayMaxCount = 0;
 
 void SetDefaultAISorting() {
 	for (int i = 0; i < nNumPlayers; i++) {
@@ -988,6 +991,229 @@ void __attribute__((naked)) __fastcall GhostForMoreOpponentsASM() {
 	);
 }
 
+uintptr_t PlayerHostCollisionsASM1_jmp = 0x4704D4;
+void __attribute__((naked)) __fastcall PlayerHostCollisionsASM1() {
+	__asm__ (
+		"mov eax, %1\n\t" // 209AC
+		"mov [ebx+0x209D4], eax\n"
+		"mov [ebx+0x209D0], eax\n"
+		"mov [ebx+0x209DC], eax\n"
+		"mov [ebx+0x209D8], eax\n"
+		"mov eax, %2\n\t" // 209E4
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionsASM1_jmp), "m" (nSomeCarCollisionArray209AC), "m" (nSomeCarCollisionArray209E4)
+	);
+}
+
+uintptr_t PlayerHostCollisionsASM2_jmp = 0x470786;
+void __attribute__((naked)) __fastcall PlayerHostCollisionsASM2() {
+	__asm__ (
+		"mov eax, %2\n\t" // 209E4
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionsASM2_jmp), "m" (nSomeCarCollisionArray209AC), "m" (nSomeCarCollisionArray209E4)
+	);
+}
+
+uintptr_t PlayerHostCollisionsASM3_jmp = 0x4707D3;
+void __attribute__((naked)) __fastcall PlayerHostCollisionsASM3() {
+	__asm__ (
+		"mov eax, %1\n\t" // 209AC
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionsASM3_jmp), "m" (nSomeCarCollisionArray209AC), "m" (nSomeCarCollisionArray209E4)
+	);
+}
+
+uintptr_t PlayerHostCollisionsASM4_jmp = 0x471A15;
+void __attribute__((naked)) __fastcall PlayerHostCollisionsASM4() {
+	__asm__ (
+		"mov eax, %1\n\t" // 209AC
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionsASM4_jmp), "m" (nSomeCarCollisionArray209AC), "m" (nSomeCarCollisionArray209E4)
+	);
+}
+
+uintptr_t PlayerHostCollisionsASM5_jmp = 0x471A70;
+void __attribute__((naked)) __fastcall PlayerHostCollisionsASM5() {
+	__asm__ (
+		"mov eax, %2\n\t" // 209E4
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionsASM5_jmp), "m" (nSomeCarCollisionArray209AC), "m" (nSomeCarCollisionArray209E4)
+	);
+}
+
+uintptr_t PlayerHostCollisionBoundsASM1_jmp = 0x470780;
+void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM1() {
+	__asm__ (
+		"jz short loc_470780\n"
+		"mov esi, edx\n"
+		"add esi, %1\n"
+
+		"loc_470773:\n"
+		"add eax, 4\n"
+		"cmp eax, esi\n"
+		"jnz short loc_47077C\n"
+		"mov eax, edx\n"
+
+		"loc_47077C:\n"
+		"cmp eax, ecx\n"
+		"jnz short loc_470773\n"
+
+		"loc_470780:\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionBoundsASM1_jmp), "m" (nSomeCarCollisionArrayMaxCount)
+	);
+}
+
+uintptr_t PlayerHostCollisionBoundsASM2_jmp = 0x4707C0;
+void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM2() {
+	__asm__ (
+		"mov esi, edx\n"
+		"add esi, %1\n"
+		"lea ecx, [ecx+0]\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionBoundsASM2_jmp), "m" (nSomeCarCollisionArrayMaxCount)
+	);
+}
+
+uintptr_t PlayerHostCollisionBoundsASM3_jmp = 0x471A0F;
+void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM3() {
+	__asm__ (
+		"jz short loc_471A0F\n"
+		"mov esi, edx\n"
+		"add esi, %1\n"
+
+		"loc_471A02:\n"
+		"add eax, 4\n"
+		"cmp eax, esi\n"
+		"jnz short loc_471A0B\n"
+		"mov eax, edx\n"
+
+		"loc_471A0B:\n"
+		"cmp eax, ecx\n"
+		"jnz short loc_471A02\n\t"
+
+		"loc_471A0F:\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionBoundsASM3_jmp), "m" (nSomeCarCollisionArrayMaxCount)
+	);
+}
+
+uintptr_t PlayerHostCollisionBoundsASM4_jmp = 0x471A50;
+void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM4() {
+	__asm__ (
+		"mov esi, edx\n"
+		"add esi, %1\n"
+		"lea esp, [esp+0]\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionBoundsASM4_jmp), "m" (nSomeCarCollisionArrayMaxCount)
+	);
+}
+
+uintptr_t PlayerHostCollisionBoundsASM5_jmp = 0x472B33;
+void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM5() {
+	__asm__ (
+		"mov ebp, eax\n"
+		"add ebp, %1\n"
+		"cmp ecx, ebp\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionBoundsASM5_jmp), "m" (nSomeCarCollisionArrayMaxCount)
+	);
+}
+
+uintptr_t PlayerHostCollisionBoundsASM6_jmp = 0x472AB8;
+void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM6() {
+	__asm__ (
+		"mov ebp, eax\n"
+		"add ebp, %1\n"
+		"cmp ecx, ebp\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionBoundsASM6_jmp), "m" (nSomeCarCollisionArrayMaxCount)
+	);
+}
+
+uintptr_t PlayerHostCollisionBoundsASM7_jmp = 0x472BB0;
+void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM7() {
+	__asm__ (
+		"mov ebp, ecx\n"
+		"add ebp, %1\n"
+		"cmp edx, ebp\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionBoundsASM7_jmp), "m" (nSomeCarCollisionArrayMaxCount)
+	);
+}
+
+uintptr_t PlayerHostCollisionBoundsASM8_jmp = 0x472C6A;
+void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM8() {
+	__asm__ (
+		"mov esi, ecx\n"
+		"add esi, %1\n"
+		"cmp edx, esi\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionBoundsASM8_jmp), "m" (nSomeCarCollisionArrayMaxCount)
+	);
+}
+
+uintptr_t PlayerHostCollisionBoundsASM9_jmp = 0x472BF1;
+void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM9() {
+	__asm__ (
+		"add ecx, %1\n"
+		"mov [eax+0x209DC], ecx\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionBoundsASM9_jmp), "m" (nSomeCarCollisionArrayMaxCount)
+	);
+}
+
+uintptr_t PlayerHostCollisionBoundsASM10_jmp = 0x472C17;
+void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM10() {
+	__asm__ (
+		"add ecx, %1\n"
+		"mov [eax+0x209D4], ecx\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionBoundsASM10_jmp), "m" (nSomeCarCollisionArrayMaxCount)
+	);
+}
+
+uintptr_t PlayerHostCollisionBoundsASM11_jmp = 0x472CBE;
+void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM11() {
+	__asm__ (
+		"mov ebx, ecx\n"
+		"add ebx, %1\n"
+		"cmp edx, ebx\n"
+		"pop ebx\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionBoundsASM11_jmp), "m" (nSomeCarCollisionArrayMaxCount)
+	);
+}
+
+uintptr_t PlayerHostCollisionBoundsASM12_jmp = 0x472CF7;
+void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM12() {
+	__asm__ (
+		"mov esi, ecx\n"
+		"add esi, %1\n"
+		"cmp edx, esi\n"
+		"pop esi\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionBoundsASM12_jmp), "m" (nSomeCarCollisionArrayMaxCount)
+	);
+}
+
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
@@ -1013,6 +1239,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			nSomeRenderArray = new int[nNumPlayers * 32];
 			nSomeGameStruct = new tSomeGameStruct[nNumPlayers];
 			nSomeDerbyScoringArray = new float[nNumPlayers * 2];
+			nSomeCarCollisionArray209AC = new int[nNumPlayers + 1];
+			nSomeCarCollisionArray209E4 = new int[nNumPlayers + 1];
 
 			// setup ai profile count, offset the aicatchup and aihandicap ids
 			NyaHookLib::Patch(0x408C58 + 1, nNumAIProfiles);
@@ -1178,6 +1406,59 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x427636, &GhostForMoreOpponentsASM);
 			NyaHookLib::Patch<uint8_t>(0x46C89A, 0xEB); // allow ai to ghost
+
+			// 426907 reads car+0x6AA8, collision related
+			// written to at 00472AD2 normally
+			// array is written to at 00472C51
+			// this odd check at 472AB3 looks like something interesting
+			nSomeCarCollisionArrayMaxCount = nNumPlayers * 4 + 4;
+
+			// static adjust, max 127
+			//NyaHookLib::Patch<uint8_t>(0x470770 + 2, nSomeCarCollisionArrayMaxCount);
+			//NyaHookLib::Patch<uint8_t>(0x4707BA + 2, nSomeCarCollisionArrayMaxCount);
+			//NyaHookLib::Patch<uint8_t>(0x4719FF + 2, nSomeCarCollisionArrayMaxCount);
+			//NyaHookLib::Patch<uint8_t>(0x471A49 + 2, nSomeCarCollisionArrayMaxCount);
+			//NyaHookLib::Patch<uint8_t>(0x472B2E + 2, nSomeCarCollisionArrayMaxCount);
+			//NyaHookLib::Patch<uint8_t>(0x472AB3 + 2, nSomeCarCollisionArrayMaxCount);
+			//NyaHookLib::Patch<uint8_t>(0x472BAB + 2, nSomeCarCollisionArrayMaxCount);
+			//NyaHookLib::Patch<uint8_t>(0x472C65 + 2, nSomeCarCollisionArrayMaxCount);
+			//NyaHookLib::Patch<uint8_t>(0x472BE8 + 2, nSomeCarCollisionArrayMaxCount);
+			//NyaHookLib::Patch<uint8_t>(0x472C0E + 2, nSomeCarCollisionArrayMaxCount);
+			//NyaHookLib::Patch<uint8_t>(0x472CB8 + 2, nSomeCarCollisionArrayMaxCount);
+			//NyaHookLib::Patch<uint8_t>(0x472CF1 + 2, nSomeCarCollisionArrayMaxCount);
+
+			// attempt to remove the cap entirely
+			//NyaHookLib::Patch<uint8_t>(0x470778, 0xEB);
+			//NyaHookLib::Patch<uint8_t>(0x4707C5, 0xEB);
+			//NyaHookLib::Patch<uint8_t>(0x471A07, 0xEB);
+			//NyaHookLib::Patch<uint8_t>(0x471A55, 0xEB);
+			//NyaHookLib::Patch<uint8_t>(0x472B33, 0xEB);
+			//NyaHookLib::Patch<uint8_t>(0x472AB8, 0xEB);
+			//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472BB0, 0x472C47);
+			//NyaHookLib::Patch<uint8_t>(0x472C0C, 0xEB); // this doesn't feel right
+			//NyaHookLib::Patch<uint8_t>(0x472CBE, 0xEB);
+			//NyaHookLib::Patch<uint8_t>(0x472CF7, 0xEB);
+
+			NyaHookLib::Patch<uint8_t>(0x472B87 + 2, nNumPlayers);
+			NyaHookLib::Patch<uint8_t>(0x472BD0 + 2, nNumPlayers);
+			NyaHookLib::Patch<uint8_t>(0x472C96 + 2, nNumPlayers);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4704CE, &PlayerHostCollisionsASM1);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x470780, &PlayerHostCollisionsASM2);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4707CD, &PlayerHostCollisionsASM3);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x471A0F, &PlayerHostCollisionsASM4);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x471A6A, &PlayerHostCollisionsASM5);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47076E, &PlayerHostCollisionBoundsASM1);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4707BA, &PlayerHostCollisionBoundsASM2);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4719FD, &PlayerHostCollisionBoundsASM3);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x471A49, &PlayerHostCollisionBoundsASM4);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472B2E, &PlayerHostCollisionBoundsASM5);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472AB3, &PlayerHostCollisionBoundsASM6);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472BAB, &PlayerHostCollisionBoundsASM7);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472C65, &PlayerHostCollisionBoundsASM8);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472BE8, &PlayerHostCollisionBoundsASM9);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472C0E, &PlayerHostCollisionBoundsASM10);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472CB8, &PlayerHostCollisionBoundsASM11);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472CF1, &PlayerHostCollisionBoundsASM12);
 
 			// 00472886 actually processes tires, that's funny :3
 		} break;
