@@ -21,7 +21,8 @@ int* nCameraArray45 = nullptr;
 int* nScoreboardArray108 = nullptr;
 int* nScoreboardArray110 = nullptr;
 int* nSomeRenderArray = nullptr; // scene + 0x1C4
-float* nSomeDerbyScoringArray = nullptr;
+float* nSomeDerbyScoringArray1 = nullptr;
+float* nSomeDerbyScoringArray2 = nullptr;
 struct tPlayerBonuses {
 	uint32_t values[7];
 };
@@ -787,11 +788,12 @@ void __attribute__((naked)) DerbyScoringArrayASM1() {
 		"push ebp\n\t"
 		"mov ebp, %1\n\t"
 		"mov [ebp+ebx*4], eax\n\t"
-		"mov [ebp+ebx*4+0x20], eax\n\t"
+		"mov ebp, %2\n\t"
+		"mov [ebp+ebx*4], eax\n\t"
 		"pop ebp\n\t"
 		"jmp %0\n\t"
 			:
-			: "m" (DerbyScoringArrayASM1_jmp), "m" (nSomeDerbyScoringArray)
+			: "m" (DerbyScoringArrayASM1_jmp), "m" (nSomeDerbyScoringArray1), "m" (nSomeDerbyScoringArray2)
 	);
 }
 
@@ -804,7 +806,7 @@ void __attribute__((naked)) DerbyScoringArrayASM2() {
 		"pop ebp\n\t"
 		"jmp %0\n\t"
 			:
-			: "m" (DerbyScoringArrayASM2_jmp), "m" (nSomeDerbyScoringArray)
+			: "m" (DerbyScoringArrayASM2_jmp), "m" (nSomeDerbyScoringArray1)
 	);
 }
 
@@ -817,7 +819,7 @@ void __attribute__((naked)) DerbyScoringArrayASM3() {
 		"pop ebp\n\t"
 		"jmp %0\n\t"
 			:
-			: "m" (DerbyScoringArrayASM3_jmp), "m" (nSomeDerbyScoringArray)
+			: "m" (DerbyScoringArrayASM3_jmp), "m" (nSomeDerbyScoringArray1)
 	);
 }
 
@@ -826,11 +828,11 @@ void __attribute__((naked)) DerbyScoringArrayASM4() {
 	__asm__ (
 		"push ebp\n\t"
 		"mov ebp, %1\n\t"
-		"mov dword ptr [ebp+ebx*4+0x20], 0x3F000000\n\t"
+		"mov dword ptr [ebp+ebx*4], 0x3F000000\n\t"
 		"pop ebp\n\t"
 		"jmp %0\n\t"
 			:
-			: "m" (DerbyScoringArrayASM4_jmp), "m" (nSomeDerbyScoringArray)
+			: "m" (DerbyScoringArrayASM4_jmp), "m" (nSomeDerbyScoringArray2)
 	);
 }
 
@@ -839,11 +841,11 @@ void __attribute__((naked)) DerbyScoringArrayASM5() {
 	__asm__ (
 		"push ebp\n\t"
 		"mov ebp, %1\n\t"
-		"fstp dword ptr [ebp+ebx*4+0x20]\n\t"
+		"fstp dword ptr [ebp+ebx*4]\n\t"
 		"pop ebp\n\t"
 		"jmp %0\n\t"
 			:
-			: "m" (DerbyScoringArrayASM5_jmp), "m" (nSomeDerbyScoringArray)
+			: "m" (DerbyScoringArrayASM5_jmp), "m" (nSomeDerbyScoringArray2)
 	);
 }
 
@@ -858,22 +860,22 @@ void __attribute__((naked)) DerbyScoringArrayASM6() {
 		"test ah, 0x41\n\t"
 		"jmp %0\n\t"
 			:
-			: "m" (DerbyScoringArrayASM6_jmp), "m" (nSomeDerbyScoringArray)
+			: "m" (DerbyScoringArrayASM6_jmp), "m" (nSomeDerbyScoringArray1)
 	);
 }
 
 uintptr_t DerbyScoringArrayASM7_jmp = 0x47BC57;
 void __attribute__((naked)) DerbyScoringArrayASM7() {
 	__asm__ (
-		"push ebp\n\t"
-		"mov ebp, %1\n\t"
-		"fcomp dword ptr [ebp+edi*4+0x20]\n"
-		"pop ebp\n\t"
+		"push edi\n\t"
+		"mov edi, %1\n\t"
+		"fcomp dword ptr [edi+ebp*4]\n"
+		"pop edi\n\t"
 		"fnstsw ax\n"
 		"test ah, 0x41\n\t"
 		"jmp %0\n\t"
 			:
-			: "m" (DerbyScoringArrayASM7_jmp), "m" (nSomeDerbyScoringArray)
+			: "m" (DerbyScoringArrayASM7_jmp), "m" (nSomeDerbyScoringArray2)
 	);
 }
 
@@ -1238,7 +1240,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			nPlayerScoreboardArray = new tScoreboardPlayer[nNumPlayers];
 			nSomeRenderArray = new int[nNumPlayers * 32];
 			nSomeGameStruct = new tSomeGameStruct[nNumPlayers];
-			nSomeDerbyScoringArray = new float[nNumPlayers * 2];
+			nSomeDerbyScoringArray1 = new float[nNumPlayers];
+			nSomeDerbyScoringArray2 = new float[nNumPlayers];
 			nSomeCarCollisionArray209AC = new int[nNumPlayers + 1];
 			nSomeCarCollisionArray209E4 = new int[nNumPlayers + 1];
 
