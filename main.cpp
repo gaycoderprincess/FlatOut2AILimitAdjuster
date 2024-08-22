@@ -3,6 +3,7 @@
 #include "nya_commonhooklib.h"
 
 int nNumAI = 7;
+int nNumPlayers = 8;
 int* nAISortingThing = nullptr;
 int* nInitPlayersArray = nullptr;
 struct tPlayerSettings {
@@ -24,7 +25,7 @@ struct tScoreboardPlayer {
 tScoreboardPlayer* nPlayerScoreboardArray = nullptr;
 
 void SetDefaultAISorting() {
-	for (int i = 0; i < nNumAI + 1; i++) {
+	for (int i = 0; i < nNumPlayers; i++) {
 		nAISortingThing[i] = i + 1;
 	}
 }
@@ -239,6 +240,35 @@ void __attribute__((naked)) ReadPlayerSettingsASM7() {
 	);
 }
 
+uintptr_t ReadPlayerSettingsASM8_jmp = 0x45CD7B;
+void __attribute__((naked)) ReadPlayerSettingsASM8() {
+	__asm__ (
+		"mov ecx, %1\n\t"
+		"add ecx, 0x20\n\t"
+		"mov ecx, [ecx]\n\t"
+		"mov eax, [ebp+0x13BC]\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsASM8_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+void ClearPlayerSettings() {
+	memset(nPlayerSettingsArray, 0, sizeof(tPlayerSettings) * nNumPlayers);
+}
+
+uintptr_t ClearPlayerSettingsASM_jmp = 0x45E411;
+void __attribute__((naked)) ClearPlayerSettingsASM() {
+	__asm__ (
+		"pushad\n\t"
+		"call %1\n\t"
+		"popad\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ClearPlayerSettingsASM_jmp), "i" (ClearPlayerSettings)
+	);
+}
+
 uintptr_t InitLocalPlayerSettingsASM1_jmp = 0x45D8FB;
 void __attribute__((naked)) InitLocalPlayerSettingsASM1() {
 	__asm__ (
@@ -263,7 +293,7 @@ void __attribute__((naked)) InitLocalPlayerSettingsASM2() {
 
 int __fastcall GetNumPlayersOfType(int type, void* a2) {
 	int count = 0;
-	for (int i = 0; i < nNumAI + 1; i++) {
+	for (int i = 0; i < nNumPlayers; i++) {
 		if (nPlayerSettingsArray[i].nPlayerType == type) count++;
 	}
 	return count;
@@ -749,20 +779,21 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 
 			auto config = toml::parse_file("FlatOut2AILimitAdjuster_gcp.toml");
 			nNumAI = config["main"]["ai_count"].value_or(7);
-			nAISortingThing = new int[nNumAI + 1];
-			nInitPlayersArray = new int[nNumAI + 1];
-			nPlayerSettingsArray = new tPlayerSettings[nNumAI + 1];
-			nCameraArray43 = new int[nNumAI + 1];
-			nCameraArray44 = new int[nNumAI + 1];
-			nCameraArray45 = new int[nNumAI + 1];
-			nScoreboardArray108 = new int[nNumAI + 1];
-			nScoreboardArray110 = new int[nNumAI + 1];
-			nPlayerScoreboardArray = new tScoreboardPlayer[nNumAI + 1];
+			nNumPlayers = nNumAI + 1;
+			nAISortingThing = new int[nNumPlayers];
+			nInitPlayersArray = new int[nNumPlayers];
+			nPlayerSettingsArray = new tPlayerSettings[nNumPlayers];
+			nCameraArray43 = new int[nNumPlayers];
+			nCameraArray44 = new int[nNumPlayers];
+			nCameraArray45 = new int[nNumPlayers];
+			nScoreboardArray108 = new int[nNumPlayers];
+			nScoreboardArray110 = new int[nNumPlayers];
+			nPlayerScoreboardArray = new tScoreboardPlayer[nNumPlayers];
 
 			NyaHookLib::Patch<uint8_t>(0x45CD01 + 1, nNumAI);
 			NyaHookLib::Patch(0x45CD15 + 2, &nNumAI);
 			NyaHookLib::Patch<uint8_t>(0x45CD1B, 0x90);
-			NyaHookLib::Patch<uint8_t>(0x45DC4D + 2, nNumAI + 1);
+			NyaHookLib::Patch<uint8_t>(0x45DC4D + 2, nNumPlayers);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E26D, &AISortingThingASM1);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E372, &AISortingThingASM2);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E390, &AISortingThingASM3);
@@ -788,6 +819,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x497468, &ReadPlayerSettingsASM5);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x498DD5, &ReadPlayerSettingsASM6);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x498EF8, &ReadPlayerSettingsASM7);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45CD6F, &ReadPlayerSettingsASM8);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E404, &ClearPlayerSettingsASM);
 
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472663, &PlayerUpdaterASM1);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472700, &PlayerUpdaterASM2);
