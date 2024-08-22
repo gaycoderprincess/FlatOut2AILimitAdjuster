@@ -966,7 +966,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46E260, &ResetCrashBonusesASM);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46E47B, &WriteCrashBonusesASM);
 			// crashes are later calculated at 46E516, 46E973, 46E505, 46E513, 46E986
-			// 46E973 is AWFUL
+			// 46E973 is AWFUL, just skipping it entirely for now
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46E920, 0x46EBA5);
 
 			NyaHookLib::Patch(0x42E1D2 + 2, nNumPlayers * 0xE0);
 			NyaHookLib::Patch(0x42E1DD + 1, nNumPlayers * 0xE0);
@@ -985,8 +986,11 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			// the one at 004293AA seems normal, inits the array
 			// the other one isn't done for the player car, seems odd
 			// removing it fixes the issue, seems to have something to do with collisions
-			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x569350, 0x569D75);
-			//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x569AE1, 0x569CDA);
+			// *(v61 + 4) = v62 + 56;
+			// size 0x38, seems fixed size
+			// edi in this case seems to be car+0x1B0
+			//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x569350, 0x569D75);
+			if (nNumPlayers > 11) NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x5697D3, 0x569CDA);
 
 			// 33 and above runs out of listnodes at 57B991
 			if (nNumPlayers > 31) {
@@ -1015,6 +1019,14 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			//NyaHookLib::Patch<uint8_t>(0x427665, 0xEB);
 			NyaHookLib::Patch<uint16_t>(0x57CBC5, 0x9090);
 			// 472de9 crashes after a few seconds ingame at 126 opponents if you don't press start
+
+			// crash at 472def when restarting a race
+			// skipping the entire code branch for now
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472D9D, 0x472E75);
+
+			// 599e7a crashed on 126 player desert oil field
+			// 43ccfb right after the loading screen on 126 player midwest ranch 1
+			// 5ad2d8 on redpine river, feels more like lack of LAA than anything code related, this is a texture render function
 		} break;
 		default:
 			break;
