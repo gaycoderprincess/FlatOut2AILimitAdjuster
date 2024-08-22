@@ -1003,6 +1003,7 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 
 			auto config = toml::parse_file("FlatOut2AILimitAdjuster_gcp.toml");
 			nNumAI = config["main"]["ai_count"].value_or(7);
+			int nNumAIProfiles = config["main"]["ai_profile_count"].value_or(7);
 			nNumPlayers = nNumAI + 1;
 			nAISortingThing = new int[nNumPlayers];
 			nInitPlayersArray = new int[nNumPlayers];
@@ -1016,6 +1017,12 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			nSomeRenderArray = new int[nNumPlayers * 32];
 			nSomeGameStruct = new tSomeGameStruct[nNumPlayers];
 			nSomeDerbyScoringArray = new float[nNumPlayers * 2];
+
+			// setup ai profile count, offset the aicatchup and aihandicap ids
+			NyaHookLib::Patch(0x408C58 + 1, nNumAIProfiles);
+			NyaHookLib::Patch(0x408C6A + 1, nNumAIProfiles + 1);
+			NyaHookLib::Patch(0x458EC7 + 6, nNumAIProfiles);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x458EDB, 0x459000);
 
 			NyaHookLib::Patch<uint8_t>(0x45CD01 + 1, nNumAI);
 			NyaHookLib::Patch(0x45CD15 + 2, &nNumPlayers);
