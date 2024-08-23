@@ -1,12 +1,17 @@
 #include <windows.h>
+#include <format>
 #include "toml++/toml.hpp"
 #include "nya_commonhooklib.h"
+
+// for debugging the heap corruption at 64 or more cars, no luck so far
+//#include "memoryhook.h"
 
 const size_t nNewPlayerStructCustomVarsBegin = 0xF50; // sizeof AIPlayer
 
 int nNumAI = 7;
 int nNumAIProfiles = 7;
 int nNumPlayers = 8;
+int nNumPlayersForPlayerInfo = 8;
 int* nAISortingThing = nullptr;
 int* nInitPlayersArray = nullptr;
 struct tPlayerSettings {
@@ -31,10 +36,6 @@ struct tScoreboardPlayer {
 	uint8_t _0[0x8];
 };
 tScoreboardPlayer* nPlayerScoreboardArray = nullptr;
-struct tSomeGameStruct {
-	uint8_t _0[0x44];
-};
-tSomeGameStruct* nSomeGameStruct = nullptr;
 int* nSomeCarCollisionArray209AC = nullptr;
 int* nSomeCarCollisionArray209E4 = nullptr;
 int nSomeCarCollisionArrayMaxCount = 0;
@@ -277,6 +278,113 @@ void __attribute__((naked)) ReadPlayerSettingsASM9() {
 		"jmp %0\n\t"
 			:
 			: "m" (ReadPlayerSettingsASM9_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+uintptr_t ReadPlayerSettingsASM10_jmp = 0x479B03;
+void __attribute__((naked)) ReadPlayerSettingsASM10() {
+	__asm__ (
+		"push edx\n\t"
+		"mov edx, %1\n\t"
+		"cmp dword ptr [ecx+edx+0x2C], 5\n\t"
+		"pop edx\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsASM10_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+uintptr_t ReadPlayerSettingsASM11_jmp = 0x4610B4;
+void __attribute__((naked)) ReadPlayerSettingsASM11() {
+	__asm__ (
+		"mov edi, %1\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsASM11_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+uintptr_t ReadPlayerSettingsASM12_jmp = 0x479935;
+void __attribute__((naked)) ReadPlayerSettingsASM12() {
+	__asm__ (
+		"push eax\n\t"
+		"mov eax, %1\n\t"
+		"cmp dword ptr [edx+eax+0x2C], 5\n\t"
+		"pop eax\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsASM12_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+uintptr_t ReadPlayerSettingsASM13_jmp = 0x46182F;
+void __attribute__((naked)) ReadPlayerSettingsASM13() {
+	__asm__ (
+		"push ecx\n\t"
+		"mov ecx, %1\n\t"
+		"lea esi, [eax+ecx-0x44]\n\t"
+		"pop ecx\n\t"
+		"push esi\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsASM13_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+uintptr_t ReadPlayerSettingsASM14_jmp = 0x45DFFF;
+void __attribute__((naked)) ReadPlayerSettingsASM14() {
+	__asm__ (
+		"mov eax, [esp+0x120]\n\t"
+		"imul eax, 0x44\n\t"
+		"push ebp\n\t"
+		"mov ebp, %1\n\t"
+		"add ebp, 0x28\n\t"
+		"mov eax, [eax+ebp]\n\t"
+		"pop ebp\n\t"
+		"dec eax\n\t"
+		"mov dword ptr [esp+0xC], 0\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsASM14_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+uintptr_t ReadPlayerSettingsASM15_jmp = 0x47AC2C;
+void __attribute__((naked)) ReadPlayerSettingsASM15() {
+	__asm__ (
+		"push eax\n\t"
+		"mov eax, %1\n\t"
+		"cmp dword ptr [edx+eax+0x2C], 2\n\t"
+		"pop eax\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsASM15_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+uintptr_t ReadPlayerSettingsASM16_jmp = 0x484F73;
+void __attribute__((naked)) ReadPlayerSettingsASM16() {
+	__asm__ (
+		"push edx\n\t"
+		"mov edx, %1\n\t"
+		"cmp dword ptr [eax+edx+0x2C], 5\n\t"
+		"pop edx\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsASM16_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+uintptr_t ReadPlayerSettingsASM17_jmp = 0x492DD7;
+void __attribute__((naked)) ReadPlayerSettingsASM17() {
+	__asm__ (
+		"push ecx\n\t"
+		"mov ecx, %1\n\t"
+		"lea esi, [edx+ecx-0x44]\n\t"
+		"pop ecx\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsASM17_jmp), "m" (nPlayerSettingsArray)
 	);
 }
 
@@ -944,17 +1052,18 @@ void __attribute__((naked)) RenderArrayASM1() {
 	);
 }
 
-uintptr_t SomeGameStructASM1_jmp = 0x45DDF4;
-void __attribute__((naked)) SomeGameStructASM1() {
+// sets car and carskin in the playerinfo array
+uintptr_t InitAIPlayerInfoASM_jmp = 0x45DDF4;
+void __attribute__((naked)) InitAIPlayerInfoASM() {
 	__asm__ (
 		"mov edx, [eax+0x340]\n\t"
 		"imul esi, 0x44\n\t"
 		"mov ebp, %1\n\t"
 		"lea ecx, [esi+ebp]\n\t"
-		"sub ecx, 0x614\n\t"
+		"sub ecx, 0x5F4\n\t"
 		"jmp %0\n\t"
 			:
-			: "m" (SomeGameStructASM1_jmp), "m" (nSomeGameStruct)
+			: "m" (InitAIPlayerInfoASM_jmp), "m" (nPlayerSettingsArray)
 	);
 }
 
@@ -1319,6 +1428,118 @@ void __attribute__((naked)) __fastcall GetAINameASM() {
 	);
 }
 
+auto InitAIHooked_call = (void(__stdcall*)(void*, int))0x45D980;
+void __stdcall InitAIHooked(void* a1, int count) {
+	count = nNumAI;
+	return InitAIHooked_call(a1, count);
+}
+
+uintptr_t InitPlayersCountASM_jmp = 0x45DC58;
+void __attribute__((naked)) __fastcall InitPlayersCountASM() {
+	__asm__ (
+		"cmp esi, %1\n\t"
+		"mov [esp+0x10], esi\n\t"
+		"mov [esp+0x20], ecx\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (InitPlayersCountASM_jmp), "m" (nNumPlayers)
+	);
+}
+
+uintptr_t PlayerInfoDBInitCountASM_jmp = 0x45AB79;
+void __attribute__((naked)) __fastcall PlayerInfoDBInitCountASM() {
+	__asm__ (
+		"call dword ptr [edx+0xD0]\n"
+		"inc esi\n"
+		"cmp esi, %1\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerInfoDBInitCountASM_jmp), "m" (nNumPlayersForPlayerInfo)
+	);
+}
+
+uintptr_t PlayerInfoDBWriteCountASM_jmp = 0x45A5DE;
+void __attribute__((naked)) __fastcall PlayerInfoDBWriteCountASM() {
+	__asm__ (
+		"add edi, 0x44\n\t"
+		"cmp eax, %1\n\t"
+		"mov [esp+0x10], eax\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerInfoDBWriteCountASM_jmp), "m" (nNumPlayersForPlayerInfo)
+	);
+}
+
+uintptr_t CrashBonusCountASM_jmp = 0x46DE75;
+void __attribute__((naked)) __fastcall CrashBonusCountASM() {
+	__asm__ (
+		"mov dword ptr [ebx], 0xFFFF8AD0\n\t"
+		"inc esi\n\t"
+		"add ebx, 0x1C\n\t"
+		"cmp esi, %1\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (CrashBonusCountASM_jmp), "m" (nNumPlayers)
+	);
+}
+
+uintptr_t PlayerHostCollisionCountASM1_jmp = 0x472B8F;
+void __attribute__((naked)) __fastcall PlayerHostCollisionCountASM1() {
+	__asm__ (
+		"cmp ecx, %1\n\t"
+		"mov esi, 4\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionCountASM1_jmp), "m" (nNumPlayers)
+	);
+}
+
+uintptr_t PlayerHostCollisionCountASM2_jmp = 0x472BD8;
+void __attribute__((naked)) __fastcall PlayerHostCollisionCountASM2() {
+	__asm__ (
+		"cmp ecx, %1\n\t"
+		"mov edx, 0xFFFFFFFC\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionCountASM2_jmp), "m" (nNumPlayers)
+	);
+}
+
+uintptr_t PlayerHostCollisionCountASM3_jmp = 0x472C9F;
+void __attribute__((naked)) __fastcall PlayerHostCollisionCountASM3() {
+	__asm__ (
+		"cmp ecx, %1\n\t"
+		"push esi\n\t"
+		"mov esi, 4\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (PlayerHostCollisionCountASM3_jmp), "m" (nNumPlayers)
+	);
+}
+
+void __fastcall DisplayPoolMemoryError(uintptr_t ptr) {
+	MessageBoxA(nullptr, std::format("Out of poolmemory at 0x{:X}", ptr).c_str(), "Fatal error", 0x10);
+	exit(0);
+}
+
+void __attribute__((naked)) __fastcall PoolMemoryErrorASM1() {
+	__asm__ (
+		"mov ecx, esi\n\t"
+		"jmp %0\n\t"
+			:
+			: "i" (DisplayPoolMemoryError)
+	);
+}
+
+void __attribute__((naked)) __fastcall PoolMemoryErrorASM2() {
+	__asm__ (
+		"mov ecx, edi\n\t"
+		"jmp %0\n\t"
+			:
+			: "i" (DisplayPoolMemoryError)
+	);
+}
+
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
@@ -1327,6 +1548,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 				exit(0);
 				return TRUE;
 			}
+
+			// todo extend cupmanager at sub_457710
 
 			auto config = toml::parse_file("FlatOut2AILimitAdjuster_gcp.toml");
 			nNumAI = config["main"]["ai_count"].value_or(7);
@@ -1342,12 +1565,15 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			nScoreboardArray110 = new int[nNumPlayers];
 			nPlayerScoreboardArray = new tScoreboardPlayer[nNumPlayers];
 			nSomeRenderArray = new int[nNumPlayers * 32];
-			nSomeGameStruct = new tSomeGameStruct[nNumPlayers];
 			nSomeDerbyScoringArray1 = new float[nNumPlayers];
 			nSomeDerbyScoringArray2 = new float[nNumPlayers];
 			nSomeCarCollisionArray209AC = new int[nNumPlayers + 1];
 			nSomeCarCollisionArray209E4 = new int[nNumPlayers + 1];
 			nAIPortraitsArray = new int[nNumAIProfiles + 1];
+
+			// capping PlayerInfo in the db to 160 for now, game crashes afterwards in AddMappedTable
+			nNumPlayersForPlayerInfo = nNumPlayers;
+			if (nNumPlayersForPlayerInfo > 160) nNumPlayersForPlayerInfo = 160;
 
 			// setup ai profile count, offset the aicatchup and aihandicap ids
 			NyaHookLib::Patch(0x408C58 + 1, nNumAIProfiles);
@@ -1359,13 +1585,13 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			// then accessed at 004BF856
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4BF851, &AIPortraitsASM1);
 			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x4B87BC, &LoadAIPortraitTextures);
-			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45C4B0, &GetAINameASM);
+			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x45D9C7, &GetAINameASM);
 
-			NyaHookLib::Patch<uint8_t>(0x45CD01 + 1, nNumAI);
-			NyaHookLib::Patch(0x45CD15 + 2, &nNumPlayers);
-			NyaHookLib::Patch<uint8_t>(0x45DC4D + 2, nNumPlayers);
-			NyaHookLib::Patch<uint8_t>(0x45AB76 + 2, nNumPlayers); // playerinfo db init
-			NyaHookLib::Patch<uint8_t>(0x45A5D7 + 2, nNumPlayers); // playerinfo db write
+			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x45CD1E, &InitAIHooked);
+			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x45E528, &InitAIHooked);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45DC4D, &InitPlayersCountASM);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45AB6F, &PlayerInfoDBInitCountASM);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45A5D4, &PlayerInfoDBWriteCountASM);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E26D, &AISortingThingASM1);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E372, &AISortingThingASM2);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E390, &AISortingThingASM3);
@@ -1379,12 +1605,13 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			// initialized at 0x612
 			// min offset -0x1E, 0x5F4
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45D9B7, &InitPlayerSettingsASM);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45DDE8, &InitAIPlayerInfoASM);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45D8F3, &InitLocalPlayerSettingsASM1);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45D883, &InitLocalPlayerSettingsASM2);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45DC80, &GetNumPlayersOfType);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45DA4C, &ReadPlayerSettingsASM);
 
-			// 4DEA76 for multiplayer sync
+			// todo mp stuff 4DEA76 4DF335 4DFA2D 4DFF86 still read Game playerinfo!!
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x49F17B, &ReadPlayerSettingsASM2);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4A24E7, &ReadPlayerSettingsASM3);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x497175, &ReadPlayerSettingsASM4);
@@ -1393,6 +1620,14 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x498EF8, &ReadPlayerSettingsASM7);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45CD6F, &ReadPlayerSettingsASM8);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45A49B, &ReadPlayerSettingsASM9);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x479AFB, &ReadPlayerSettingsASM10);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4610AE, &ReadPlayerSettingsASM11);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47992D, &ReadPlayerSettingsASM12);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x461827, &ReadPlayerSettingsASM13);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45DFE6, &ReadPlayerSettingsASM14);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47AC24, &ReadPlayerSettingsASM15);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x484F6B, &ReadPlayerSettingsASM16);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x492DD0, &ReadPlayerSettingsASM17);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E404, &ClearPlayerSettingsASM);
 
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472663, &PlayerUpdaterASM1);
@@ -1437,12 +1672,6 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47BAEE, &DerbyScoringArrayASM6);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47BC4E, &DerbyScoringArrayASM7);
 
-			// crash at 45c680 when finishing a lap
-			// game + 0x904 seems to be overwritten at 0045DE03?
-			// it's aiplayer init, seems to be an array in game for ai
-			// cant find anywhere this is read
-			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45DDE8, &SomeGameStructASM1);
-
 			// rendering crashes with way too many cars, +254 off of scene ptr gets overwritten by 4C9C41
 			// cant find anywhere this is read
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4C9C3E, &RenderArrayASM1);
@@ -1463,7 +1692,7 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::Patch(0x46E3E9 + 1, nNumPlayers);
 			NyaHookLib::Patch(0x46E665 + 4, nNumPlayers);
 			NyaHookLib::Patch(0x46DEA2 + 4, nNumPlayers);
-			NyaHookLib::Patch<uint8_t>(0x46DE72 + 2, nNumPlayers);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46DE68, &CrashBonusCountASM);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46E260, &ResetCrashBonusesASM);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46E47B, &WriteCrashBonusesASM);
 			// crashes are later calculated at 46E516, 46E973, 46E505, 46E513, 46E986
@@ -1502,18 +1731,36 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 				NyaHookLib::Patch(0x6504E0 + 1, listnodeInitCount);
 				NyaHookLib::Patch(0x6504FB + 2, listnodeLastOffset);
 			}
+			// ragdoll data
+			if (nNumAIProfiles > 15) {
+				int listnodeCount = (nNumAIProfiles + 1) * 4;
+				int listnodeInitCount = listnodeCount - 1;
+				int listnodeSize = (listnodeCount * 0xC) + 0x4;
+				int listnodeLastOffset = listnodeSize - 0xC;
+				NyaHookLib::Patch(0x650790 + 1, listnodeSize);
+				NyaHookLib::Patch(0x6507B0 + 1, listnodeInitCount);
+				NyaHookLib::Patch(0x6507CB + 2, listnodeLastOffset);
+			}
+			// driver model
+			if (nNumAIProfiles > 15) {
+				int listnodeCount = (nNumAIProfiles + 1) * 4;
+				int listnodeInitCount = listnodeCount - 1;
+				int listnodeSize = (listnodeCount * 0xC) + 0x4;
+				int listnodeLastOffset = listnodeSize - 0xC;
+				NyaHookLib::Patch(0x650310 + 1, listnodeSize);
+				NyaHookLib::Patch(0x650330 + 1, listnodeInitCount);
+				NyaHookLib::Patch(0x65034B + 2, listnodeLastOffset);
+			}
 
 			// 57CD40 crashes with 127 cars
 			// loading screen + 0x2C0 gets overwritten at 0057CC1E
-			//NyaHookLib::Patch<uint8_t>(0x427665, 0xEB);
 			NyaHookLib::Patch<uint16_t>(0x57CBC5, 0x9090);
-			// 472de9 crashes after a few seconds ingame at 126 opponents if you don't press start
 
+			// 472de9 crashes after a few seconds ingame at 126 opponents if you don't press start
 			// crash at 472def when restarting a race
 			// skipping the entire code branch for now
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472D9D, 0x472E75);
 
-			// 599e7a crashed on 126 player desert oil field
 			// 43ccfb right after the loading screen on 126 player midwest ranch 1
 			// 5ad2d8 on redpine river, feels more like lack of LAA than anything code related, this is a texture render function
 
@@ -1528,36 +1775,9 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			// array is written to at 00472C51
 			// this odd check at 472AB3 looks like something interesting
 			nSomeCarCollisionArrayMaxCount = nNumPlayers * 4 + 4;
-
-			// static adjust, max 127
-			//NyaHookLib::Patch<uint8_t>(0x470770 + 2, nSomeCarCollisionArrayMaxCount);
-			//NyaHookLib::Patch<uint8_t>(0x4707BA + 2, nSomeCarCollisionArrayMaxCount);
-			//NyaHookLib::Patch<uint8_t>(0x4719FF + 2, nSomeCarCollisionArrayMaxCount);
-			//NyaHookLib::Patch<uint8_t>(0x471A49 + 2, nSomeCarCollisionArrayMaxCount);
-			//NyaHookLib::Patch<uint8_t>(0x472B2E + 2, nSomeCarCollisionArrayMaxCount);
-			//NyaHookLib::Patch<uint8_t>(0x472AB3 + 2, nSomeCarCollisionArrayMaxCount);
-			//NyaHookLib::Patch<uint8_t>(0x472BAB + 2, nSomeCarCollisionArrayMaxCount);
-			//NyaHookLib::Patch<uint8_t>(0x472C65 + 2, nSomeCarCollisionArrayMaxCount);
-			//NyaHookLib::Patch<uint8_t>(0x472BE8 + 2, nSomeCarCollisionArrayMaxCount);
-			//NyaHookLib::Patch<uint8_t>(0x472C0E + 2, nSomeCarCollisionArrayMaxCount);
-			//NyaHookLib::Patch<uint8_t>(0x472CB8 + 2, nSomeCarCollisionArrayMaxCount);
-			//NyaHookLib::Patch<uint8_t>(0x472CF1 + 2, nSomeCarCollisionArrayMaxCount);
-
-			// attempt to remove the cap entirely
-			//NyaHookLib::Patch<uint8_t>(0x470778, 0xEB);
-			//NyaHookLib::Patch<uint8_t>(0x4707C5, 0xEB);
-			//NyaHookLib::Patch<uint8_t>(0x471A07, 0xEB);
-			//NyaHookLib::Patch<uint8_t>(0x471A55, 0xEB);
-			//NyaHookLib::Patch<uint8_t>(0x472B33, 0xEB);
-			//NyaHookLib::Patch<uint8_t>(0x472AB8, 0xEB);
-			//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472BB0, 0x472C47);
-			//NyaHookLib::Patch<uint8_t>(0x472C0C, 0xEB); // this doesn't feel right
-			//NyaHookLib::Patch<uint8_t>(0x472CBE, 0xEB);
-			//NyaHookLib::Patch<uint8_t>(0x472CF7, 0xEB);
-
-			NyaHookLib::Patch<uint8_t>(0x472B87 + 2, nNumPlayers);
-			NyaHookLib::Patch<uint8_t>(0x472BD0 + 2, nNumPlayers);
-			NyaHookLib::Patch<uint8_t>(0x472C96 + 2, nNumPlayers);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472B87, &PlayerHostCollisionCountASM1);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472BD0, &PlayerHostCollisionCountASM2);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472C96, &PlayerHostCollisionCountASM3);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4704CE, &PlayerHostCollisionsASM1);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x470780, &PlayerHostCollisionsASM2);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4707CD, &PlayerHostCollisionsASM3);
@@ -1584,10 +1804,37 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			// written to in a lot of places but definitely overflowed
 			// 0047D732 is the final result, likely overflowed
 			// correct one seems to be 479F68
-			NyaHookLib::Patch<uint8_t>(0x47D6CB, 0xEB);
+			// just skipping fastestlaptime write for all other players for now, as it's never read for anyone but the player
+			NyaHookLib::Patch<uint16_t>(0x47D73E, 0x9090);
+
+			// out of memory in dynamic pool made by 67CC88 vft
+			// BVISUAL::VisibilitySet
+			NyaHookLib::Patch(0x58AC23 + 3, 10000 * 10);
+
+			int nNumTextures = nNumPlayers * 10; // should prolly be * 2 but just to be safe
+			NyaHookLib::Patch(0x4512DF + 1, nNumTextures * 0x14);
+			NyaHookLib::Patch(0x54D773 + 1, nNumTextures);
+			NyaHookLib::Patch(0x54D7A8 + 2, nNumTextures * 0x14);
+			NyaHookLib::Patch(0x54D7AE + 1, nNumTextures);
+
+			NyaHookLib::Patch(0x69D2FC + 8, 8192 * 4); // texture pool memory max count
+
+			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x54D273, &PoolMemoryErrorASM1);
+			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x54D306, &PoolMemoryErrorASM2);
 
 			// crash quitting a race at 42E9C8
 			// player dtor, car->0x338, its object ptr
+
+			// crash quitting a race at 532760
+			// freeing something, heap is corrupt
+
+			// 599E7A crashed on 126 player desert oil field
+			// seems to be processing dynamic objects, something overwrote the ptr? this smells like pretty bad heap corruption
+
+			// crash in 45affa with 1024 cars
+			// is this dynamically allocated?
+
+			//PlaceMemoryHooks();
 
 			// 00472886 actually processes tires, that's funny :3
 		} break;

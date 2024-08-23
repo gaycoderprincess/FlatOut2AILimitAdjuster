@@ -2,8 +2,8 @@
 # enjoy, nya~ :3
 
 [main]
-ai_count = 31
-ai_profile_count = 7
+ai_count = 31				# Number of AI opponents, stable up to 31, can theoretically be as high as 127 or 255 but crashes very often
+ai_profile_count = 7			# Number of unique AI profiles, requires DB editing!
 
 [names]
 AI1="JACK BENTON"
