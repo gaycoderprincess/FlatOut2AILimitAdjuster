@@ -1683,6 +1683,16 @@ void CustomLUAFunctions(void* lua, int field, const char* value) {
 	lua_setfield(lua, -10002, "SetAICount");
 }
 
+auto FMODChannels1_call = (void(__stdcall*)(int))0x619F15;
+void __stdcall FMODChannels1(int a1) {
+	FMODChannels1_call(1024);
+}
+
+auto FMODChannels2_call = (void(__stdcall*)(int, int, int))0x61A3A9;
+void __stdcall FMODChannels2(int a1, int a2, int a3) {
+	FMODChannels2_call(a1, 1024, a3);
+}
+
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
@@ -1995,6 +2005,9 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			// add more bits to lobby data
 			NyaHookLib::Fill(0x51AFBB, 0x90, 3); // maxplayers
 			NyaHookLib::Fill(0x51AFE7, 0x90, 3); // numplayers
+
+			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x42077B, &FMODChannels1);
+			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x4207AA, &FMODChannels2);
 
 			// crash quitting a race at 42E9C8
 			// player dtor, car->0x338, its object ptr
