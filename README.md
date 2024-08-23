@@ -1,8 +1,9 @@
 # FlatOut 2 AI Limit Adjuster
 
-Plugin to increase the maximum amount of AI opponents in FlatOut 2, highly WIP and unstable!
+Plugin to increase the maximum amount of AI opponents in FlatOut 2
 
-![preview](https://i.imgur.com/c4EwGge.png)
+![128 cars preview](https://i.imgur.com/Vl8u9mL.png)
+![fouc ai preview](https://i.imgur.com/QBhbm3R.png)
 
 ## Installation
 
