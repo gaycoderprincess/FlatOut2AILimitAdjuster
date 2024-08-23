@@ -1586,7 +1586,7 @@ void __attribute__((naked)) NitroCarCrashASM() {
 		"loc_46E9AD:\n\t"
 		"fmul    dword ptr [0x67DEF8]\n\t"
 		"fmul    dword ptr [0x6970C4]\n\t"
-		"fmul    dword ptr [esp+0xC]\n\t"
+		"fmul    dword ptr [esp+0x10]\n\t"
 		"faddp   st(1), st\n\t"
 
 		// increment, jump back if not numplayers
