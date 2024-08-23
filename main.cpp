@@ -1741,7 +1741,7 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x45D9C7, &GetAINameASM);
 
 			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x45CD1E, &InitAIHooked);
-			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x45E528, &InitAIHooked);
+			//NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x45E528, &InitAIHooked); // this one's for cups! bad idea
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45DC4D, &InitPlayersCountASM);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45AB6F, &PlayerInfoDBInitCountASM);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45A5D4, &PlayerInfoDBWriteCountASM);
