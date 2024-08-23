@@ -598,7 +598,7 @@ void __attribute__((naked)) PlayerUpdaterASM11() {
 	__asm__ (
 		"push ebp\n\t"
 		"mov ebp, %2\n\t" // v44
-		"mov eax, [ebp+esi*4]\n"
+		"mov eax, [ebp+esi*4]\n\t"
 		"mov cl, [eax+0x6AE4]\n\t"
 		"pop ebp\n\t"
 		"test cl, cl\n\t"
@@ -613,7 +613,7 @@ void __attribute__((naked)) PlayerUpdaterASM12() {
 	__asm__ (
 		"push ebp\n\t"
 		"mov ebp, %2\n\t" // v44
-		"mov eax, [ebp+esi*4]\n"
+		"mov eax, [ebp+esi*4]\n\t"
 		"mov cl, [eax+0x6AE4]\n\t"
 		"pop ebp\n\t"
 		"test cl, cl\n\t"
@@ -628,7 +628,7 @@ void __attribute__((naked)) PlayerUpdaterASM13() {
 	__asm__ (
 		"push ebp\n\t"
 		"mov ebp, %2\n\t" // v44
-		"mov eax, [ebp+esi*4]\n"
+		"mov eax, [ebp+esi*4]\n\t"
 		"mov cl, [eax+0x6AE4]\n\t"
 		"pop ebp\n\t"
 		"test cl, cl\n\t"
@@ -643,7 +643,7 @@ void __attribute__((naked)) PlayerUpdaterASM14() {
 	__asm__ (
 		"push ebp\n\t"
 		"mov ebp, %2\n\t" // v44
-		"mov ebx, [ebp+esi*4]\n"
+		"mov ebx, [ebp+esi*4]\n\t"
 		"mov al, [ebx+0x6AE4]\n\t"
 		"pop ebp\n\t"
 		"test al, al\n\t"
@@ -659,7 +659,7 @@ void __attribute__((naked)) PlayerUpdaterASM15() {
 	__asm__ (
 		"push ebp\n\t"
 		"mov ebp, %2\n\t" // v44
-		"mov eax, [ebp+esi*4]\n"
+		"mov eax, [ebp+esi*4]\n\t"
 		"pop ebp\n\t"
 		"call %4\n\t"
 		"jmp %0\n\t"
@@ -868,7 +868,7 @@ void __attribute__((naked)) ScoreboardArrayASM2() {
 		"mov ebp, %2\n\t"
 		"sub ebp, 4\n\t" // todo not sure if this is needed
 		"lea eax, [ebp+eax*4]\n\t"
-		"pop ebp\n"
+		"pop ebp\n\t"
 		"jmp %0\n\t"
 			:
 			: "m" (ScoreboardArrayASM2_jmp), "m" (nScoreboardArray108), "m" (nScoreboardArray110)
@@ -975,9 +975,9 @@ void __attribute__((naked)) DerbyScoringArrayASM6() {
 	__asm__ (
 		"push ebp\n\t"
 		"mov ebp, %1\n\t"
-		"fcomp dword ptr [ebp+edi*4]\n"
+		"fcomp dword ptr [ebp+edi*4]\n\t"
 		"pop ebp\n\t"
-		"fnstsw ax\n"
+		"fnstsw ax\n\t"
 		"test ah, 0x41\n\t"
 		"jmp %0\n\t"
 			:
@@ -990,9 +990,9 @@ void __attribute__((naked)) DerbyScoringArrayASM7() {
 	__asm__ (
 		"push edi\n\t"
 		"mov edi, %1\n\t"
-		"fcomp dword ptr [edi+ebp*4]\n"
+		"fcomp dword ptr [edi+ebp*4]\n\t"
 		"pop edi\n\t"
-		"fnstsw ax\n"
+		"fnstsw ax\n\t"
 		"test ah, 0x41\n\t"
 		"jmp %0\n\t"
 			:
@@ -1100,7 +1100,7 @@ void __fastcall GhostForMoreOpponents(Player* pPlayer) {
 }
 
 uintptr_t GhostForMoreOpponentsASM_jmp = 0x42764C;
-void __attribute__((naked)) __fastcall GhostForMoreOpponentsASM() {
+void __attribute__((naked)) GhostForMoreOpponentsASM() {
 	__asm__ (
 		"pushad\n\t"
 		"mov ecx, [edi+0x463C]\n\t"
@@ -1116,13 +1116,13 @@ void __attribute__((naked)) __fastcall GhostForMoreOpponentsASM() {
 }
 
 uintptr_t PlayerHostCollisionsASM1_jmp = 0x4704D4;
-void __attribute__((naked)) __fastcall PlayerHostCollisionsASM1() {
+void __attribute__((naked)) PlayerHostCollisionsASM1() {
 	__asm__ (
 		"mov eax, %1\n\t" // 209AC
-		"mov [ebx+0x209D4], eax\n"
-		"mov [ebx+0x209D0], eax\n"
-		"mov [ebx+0x209DC], eax\n"
-		"mov [ebx+0x209D8], eax\n"
+		"mov [ebx+0x209D4], eax\n\t"
+		"mov [ebx+0x209D0], eax\n\t"
+		"mov [ebx+0x209DC], eax\n\t"
+		"mov [ebx+0x209D8], eax\n\t"
 		"mov eax, %2\n\t" // 209E4
 		"jmp %0\n\t"
 			:
@@ -1131,7 +1131,7 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionsASM1() {
 }
 
 uintptr_t PlayerHostCollisionsASM2_jmp = 0x470786;
-void __attribute__((naked)) __fastcall PlayerHostCollisionsASM2() {
+void __attribute__((naked)) PlayerHostCollisionsASM2() {
 	__asm__ (
 		"mov eax, %2\n\t" // 209E4
 		"jmp %0\n\t"
@@ -1141,7 +1141,7 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionsASM2() {
 }
 
 uintptr_t PlayerHostCollisionsASM3_jmp = 0x4707D3;
-void __attribute__((naked)) __fastcall PlayerHostCollisionsASM3() {
+void __attribute__((naked)) PlayerHostCollisionsASM3() {
 	__asm__ (
 		"mov eax, %1\n\t" // 209AC
 		"jmp %0\n\t"
@@ -1151,7 +1151,7 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionsASM3() {
 }
 
 uintptr_t PlayerHostCollisionsASM4_jmp = 0x471A15;
-void __attribute__((naked)) __fastcall PlayerHostCollisionsASM4() {
+void __attribute__((naked)) PlayerHostCollisionsASM4() {
 	__asm__ (
 		"mov eax, %1\n\t" // 209AC
 		"jmp %0\n\t"
@@ -1161,7 +1161,7 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionsASM4() {
 }
 
 uintptr_t PlayerHostCollisionsASM5_jmp = 0x471A70;
-void __attribute__((naked)) __fastcall PlayerHostCollisionsASM5() {
+void __attribute__((naked)) PlayerHostCollisionsASM5() {
 	__asm__ (
 		"mov eax, %2\n\t" // 209E4
 		"jmp %0\n\t"
@@ -1171,21 +1171,21 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionsASM5() {
 }
 
 uintptr_t PlayerHostCollisionBoundsASM1_jmp = 0x470780;
-void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM1() {
+void __attribute__((naked)) PlayerHostCollisionBoundsASM1() {
 	__asm__ (
-		"jz short loc_470780\n"
-		"mov esi, edx\n"
-		"add esi, %1\n"
+		"jz short loc_470780\n\t"
+		"mov esi, edx\n\t"
+		"add esi, %1\n\t"
 
-		"loc_470773:\n"
-		"add eax, 4\n"
-		"cmp eax, esi\n"
-		"jnz short loc_47077C\n"
-		"mov eax, edx\n"
+		"loc_470773:\n\t"
+		"add eax, 4\n\t"
+		"cmp eax, esi\n\t"
+		"jnz short loc_47077C\n\t"
+		"mov eax, edx\n\t"
 
-		"loc_47077C:\n"
-		"cmp eax, ecx\n"
-		"jnz short loc_470773\n"
+		"loc_47077C:\n\t"
+		"cmp eax, ecx\n\t"
+		"jnz short loc_470773\n\t"
 
 		"loc_470780:\n\t"
 		"jmp %0\n\t"
@@ -1195,10 +1195,10 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM1() {
 }
 
 uintptr_t PlayerHostCollisionBoundsASM2_jmp = 0x4707C0;
-void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM2() {
+void __attribute__((naked)) PlayerHostCollisionBoundsASM2() {
 	__asm__ (
-		"mov esi, edx\n"
-		"add esi, %1\n"
+		"mov esi, edx\n\t"
+		"add esi, %1\n\t"
 		"lea ecx, [ecx+0]\n\t"
 		"jmp %0\n\t"
 			:
@@ -1207,20 +1207,20 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM2() {
 }
 
 uintptr_t PlayerHostCollisionBoundsASM3_jmp = 0x471A0F;
-void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM3() {
+void __attribute__((naked)) PlayerHostCollisionBoundsASM3() {
 	__asm__ (
-		"jz short loc_471A0F\n"
-		"mov esi, edx\n"
-		"add esi, %1\n"
+		"jz short loc_471A0F\n\t"
+		"mov esi, edx\n\t"
+		"add esi, %1\n\t"
 
-		"loc_471A02:\n"
-		"add eax, 4\n"
-		"cmp eax, esi\n"
-		"jnz short loc_471A0B\n"
-		"mov eax, edx\n"
+		"loc_471A02:\n\t"
+		"add eax, 4\n\t"
+		"cmp eax, esi\n\t"
+		"jnz short loc_471A0B\n\t"
+		"mov eax, edx\n\t"
 
-		"loc_471A0B:\n"
-		"cmp eax, ecx\n"
+		"loc_471A0B:\n\t"
+		"cmp eax, ecx\n\t"
 		"jnz short loc_471A02\n\t"
 
 		"loc_471A0F:\n\t"
@@ -1231,10 +1231,10 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM3() {
 }
 
 uintptr_t PlayerHostCollisionBoundsASM4_jmp = 0x471A50;
-void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM4() {
+void __attribute__((naked)) PlayerHostCollisionBoundsASM4() {
 	__asm__ (
-		"mov esi, edx\n"
-		"add esi, %1\n"
+		"mov esi, edx\n\t"
+		"add esi, %1\n\t"
 		"lea esp, [esp+0]\n\t"
 		"jmp %0\n\t"
 			:
@@ -1243,10 +1243,10 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM4() {
 }
 
 uintptr_t PlayerHostCollisionBoundsASM5_jmp = 0x472B33;
-void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM5() {
+void __attribute__((naked)) PlayerHostCollisionBoundsASM5() {
 	__asm__ (
-		"mov ebp, eax\n"
-		"add ebp, %1\n"
+		"mov ebp, eax\n\t"
+		"add ebp, %1\n\t"
 		"cmp ecx, ebp\n\t"
 		"jmp %0\n\t"
 			:
@@ -1255,10 +1255,10 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM5() {
 }
 
 uintptr_t PlayerHostCollisionBoundsASM6_jmp = 0x472AB8;
-void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM6() {
+void __attribute__((naked)) PlayerHostCollisionBoundsASM6() {
 	__asm__ (
-		"mov ebp, eax\n"
-		"add ebp, %1\n"
+		"mov ebp, eax\n\t"
+		"add ebp, %1\n\t"
 		"cmp ecx, ebp\n\t"
 		"jmp %0\n\t"
 			:
@@ -1267,10 +1267,10 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM6() {
 }
 
 uintptr_t PlayerHostCollisionBoundsASM7_jmp = 0x472BB0;
-void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM7() {
+void __attribute__((naked)) PlayerHostCollisionBoundsASM7() {
 	__asm__ (
-		"mov ebp, ecx\n"
-		"add ebp, %1\n"
+		"mov ebp, ecx\n\t"
+		"add ebp, %1\n\t"
 		"cmp edx, ebp\n\t"
 		"jmp %0\n\t"
 			:
@@ -1279,10 +1279,10 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM7() {
 }
 
 uintptr_t PlayerHostCollisionBoundsASM8_jmp = 0x472C6A;
-void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM8() {
+void __attribute__((naked)) PlayerHostCollisionBoundsASM8() {
 	__asm__ (
-		"mov esi, ecx\n"
-		"add esi, %1\n"
+		"mov esi, ecx\n\t"
+		"add esi, %1\n\t"
 		"cmp edx, esi\n\t"
 		"jmp %0\n\t"
 			:
@@ -1291,9 +1291,9 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM8() {
 }
 
 uintptr_t PlayerHostCollisionBoundsASM9_jmp = 0x472BF1;
-void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM9() {
+void __attribute__((naked)) PlayerHostCollisionBoundsASM9() {
 	__asm__ (
-		"add ecx, %1\n"
+		"add ecx, %1\n\t"
 		"mov [eax+0x209DC], ecx\n\t"
 		"jmp %0\n\t"
 			:
@@ -1302,9 +1302,9 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM9() {
 }
 
 uintptr_t PlayerHostCollisionBoundsASM10_jmp = 0x472C17;
-void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM10() {
+void __attribute__((naked)) PlayerHostCollisionBoundsASM10() {
 	__asm__ (
-		"add ecx, %1\n"
+		"add ecx, %1\n\t"
 		"mov [eax+0x209D4], ecx\n\t"
 		"jmp %0\n\t"
 			:
@@ -1313,11 +1313,11 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM10() {
 }
 
 uintptr_t PlayerHostCollisionBoundsASM11_jmp = 0x472CBE;
-void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM11() {
+void __attribute__((naked)) PlayerHostCollisionBoundsASM11() {
 	__asm__ (
-		"mov ebx, ecx\n"
-		"add ebx, %1\n"
-		"cmp edx, ebx\n"
+		"mov ebx, ecx\n\t"
+		"add ebx, %1\n\t"
+		"cmp edx, ebx\n\t"
 		"pop ebx\n\t"
 		"jmp %0\n\t"
 			:
@@ -1326,11 +1326,11 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM11() {
 }
 
 uintptr_t PlayerHostCollisionBoundsASM12_jmp = 0x472CF7;
-void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM12() {
+void __attribute__((naked)) PlayerHostCollisionBoundsASM12() {
 	__asm__ (
-		"mov esi, ecx\n"
-		"add esi, %1\n"
-		"cmp edx, esi\n"
+		"mov esi, ecx\n\t"
+		"add esi, %1\n\t"
+		"cmp edx, esi\n\t"
 		"pop esi\n\t"
 		"jmp %0\n\t"
 			:
@@ -1339,7 +1339,7 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionBoundsASM12() {
 }
 
 uintptr_t AIPortraitsASM1_jmp = 0x4BF85C;
-void __attribute__((naked)) __fastcall AIPortraitsASM1() {
+void __attribute__((naked)) AIPortraitsASM1() {
 	__asm__ (
 		"push edi\n\t"
 		"mov edi, %1\n\t"
@@ -1419,7 +1419,7 @@ const wchar_t* __fastcall GetAIName(int id) {
 	return aNames[nameId];
 }
 
-void __attribute__((naked)) __fastcall GetAINameASM() {
+void __attribute__((naked)) GetAINameASM() {
 	__asm__ (
 		"mov ecx, eax\n\t"
 		"jmp %0\n\t"
@@ -1435,7 +1435,7 @@ void __stdcall InitAIHooked(void* a1, int count) {
 }
 
 uintptr_t InitPlayersCountASM_jmp = 0x45DC58;
-void __attribute__((naked)) __fastcall InitPlayersCountASM() {
+void __attribute__((naked)) InitPlayersCountASM() {
 	__asm__ (
 		"cmp esi, %1\n\t"
 		"mov [esp+0x10], esi\n\t"
@@ -1447,10 +1447,10 @@ void __attribute__((naked)) __fastcall InitPlayersCountASM() {
 }
 
 uintptr_t PlayerInfoDBInitCountASM_jmp = 0x45AB79;
-void __attribute__((naked)) __fastcall PlayerInfoDBInitCountASM() {
+void __attribute__((naked)) PlayerInfoDBInitCountASM() {
 	__asm__ (
-		"call dword ptr [edx+0xD0]\n"
-		"inc esi\n"
+		"call dword ptr [edx+0xD0]\n\t"
+		"inc esi\n\t"
 		"cmp esi, %1\n\t"
 		"jmp %0\n\t"
 			:
@@ -1459,7 +1459,7 @@ void __attribute__((naked)) __fastcall PlayerInfoDBInitCountASM() {
 }
 
 uintptr_t PlayerInfoDBWriteCountASM_jmp = 0x45A5DE;
-void __attribute__((naked)) __fastcall PlayerInfoDBWriteCountASM() {
+void __attribute__((naked)) PlayerInfoDBWriteCountASM() {
 	__asm__ (
 		"add edi, 0x44\n\t"
 		"cmp eax, %1\n\t"
@@ -1471,7 +1471,7 @@ void __attribute__((naked)) __fastcall PlayerInfoDBWriteCountASM() {
 }
 
 uintptr_t CrashBonusCountASM_jmp = 0x46DE75;
-void __attribute__((naked)) __fastcall CrashBonusCountASM() {
+void __attribute__((naked)) CrashBonusCountASM() {
 	__asm__ (
 		"mov dword ptr [ebx], 0xFFFF8AD0\n\t"
 		"inc esi\n\t"
@@ -1484,7 +1484,7 @@ void __attribute__((naked)) __fastcall CrashBonusCountASM() {
 }
 
 uintptr_t PlayerHostCollisionCountASM1_jmp = 0x472B8F;
-void __attribute__((naked)) __fastcall PlayerHostCollisionCountASM1() {
+void __attribute__((naked)) PlayerHostCollisionCountASM1() {
 	__asm__ (
 		"cmp ecx, %1\n\t"
 		"mov esi, 4\n\t"
@@ -1495,7 +1495,7 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionCountASM1() {
 }
 
 uintptr_t PlayerHostCollisionCountASM2_jmp = 0x472BD8;
-void __attribute__((naked)) __fastcall PlayerHostCollisionCountASM2() {
+void __attribute__((naked)) PlayerHostCollisionCountASM2() {
 	__asm__ (
 		"cmp ecx, %1\n\t"
 		"mov edx, 0xFFFFFFFC\n\t"
@@ -1506,7 +1506,7 @@ void __attribute__((naked)) __fastcall PlayerHostCollisionCountASM2() {
 }
 
 uintptr_t PlayerHostCollisionCountASM3_jmp = 0x472C9F;
-void __attribute__((naked)) __fastcall PlayerHostCollisionCountASM3() {
+void __attribute__((naked)) PlayerHostCollisionCountASM3() {
 	__asm__ (
 		"cmp ecx, %1\n\t"
 		"push esi\n\t"
@@ -1522,7 +1522,7 @@ void __fastcall DisplayPoolMemoryError(uintptr_t ptr) {
 	exit(0);
 }
 
-void __attribute__((naked)) __fastcall PoolMemoryErrorASM1() {
+void __attribute__((naked)) PoolMemoryErrorASM1() {
 	__asm__ (
 		"mov ecx, esi\n\t"
 		"jmp %0\n\t"
@@ -1531,12 +1531,76 @@ void __attribute__((naked)) __fastcall PoolMemoryErrorASM1() {
 	);
 }
 
-void __attribute__((naked)) __fastcall PoolMemoryErrorASM2() {
+void __attribute__((naked)) PoolMemoryErrorASM2() {
 	__asm__ (
 		"mov ecx, edi\n\t"
 		"jmp %0\n\t"
 			:
 			: "i" (DisplayPoolMemoryError)
+	);
+}
+
+uintptr_t NitroCarCrashASM_jmp = 0x46EBA5;
+void __attribute__((naked)) NitroCarCrashASM() {
+	__asm__ (
+		// using ebp as a counter
+		"push ebp\n\t"
+		"xor ebp, ebp\n\t"
+
+		"start_46E96E:\n\t"
+		"cmp ecx, ebp\n\t" // compare to counter
+		"jz      loc_46E9BF\n\t"
+		"push ecx\n\t"
+		"push ebx\n\t"
+		"mov ecx, %2\n\t"
+		"mov ebx, ebp\n\t" // ebx = ebp * 0x1C
+		"imul ebx, ebx, 0x1C\n\t"
+		"add ecx, ebx\n\t"
+		"add ecx, 4\n\t" // this checks for +0x560, base ptr is +0x55C
+		"fld dword ptr [esi+ecx]\n\t"
+		"pop ebx\n\t"
+		"pop ecx\n\t"
+		"fcomp   dword ptr [0x6970BC]\n\t"
+		"fnstsw  ax\n\t"
+		"test    ah, 0x41\n\t"
+		"jnz     loc_46E9BF\n\t"
+		"push ecx\n\t"
+		"push ebx\n\t"
+		"mov ecx, %2\n\t"
+		"mov ebx, ebp\n\t" // ebx = ebp * 0x1C
+		"imul ebx, ebx, 0x1C\n\t"
+		"add ecx, ebx\n\t"
+		"add ecx, 4\n\t" // this checks for +0x560, base ptr is +0x55C
+		"fld dword ptr [esi+ecx]\n\t"
+		"pop ebx\n\t"
+		"pop ecx\n\t"
+		"fsub    dword ptr [0x6970BC]\n\t"
+		"fdiv    dword ptr [0x6970C0]\n\t"
+		"fcom    dword ptr [0x67DB74]\n\t"
+		"fnstsw  ax\n\t"
+		"test    ah, 5\n\t"
+		"jnp     loc_46E9AD\n\t"
+		"fstp    st\n\t"
+		"fld     dword ptr [0x67DB74]\n\t"
+
+		"loc_46E9AD:\n\t"
+		"fmul    dword ptr [0x67DEF8]\n\t"
+		"fmul    dword ptr [0x6970C4]\n\t"
+		"fmul    dword ptr [esp+0xC]\n\t"
+		"faddp   st(1), st\n\t"
+
+		// increment, jump back if not numplayers
+		"loc_46E9BF:\n\t"
+		"inc ebp\n\t"
+		"cmp ebp, %1\n\t"
+		"jne start_46E96E\n\t"
+
+		// reset and continue
+		"jmpout_46EBA5:\n\t"
+		"pop ebp\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (NitroCarCrashASM_jmp), "m" (nNumPlayers), "m" (nNewPlayerStructCustomVarsBegin)
 	);
 }
 
@@ -1677,6 +1741,7 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4C9C3E, &RenderArrayASM1);
 
 			size_t nNewPlayerStructSize = nNewPlayerStructCustomVarsBegin + (0x1C * nNumPlayers);
+			if (nNewPlayerStructSize < 0xF50) nNewPlayerStructSize = 0xF50;
 			NyaHookLib::Patch(0x45DCE6 + 1, nNewPlayerStructSize); // local player
 			NyaHookLib::Patch(0x45DDC7 + 1, nNewPlayerStructSize); // ai player
 			NyaHookLib::Patch(0x45DA8B + 1, nNewPlayerStructSize); // network player
@@ -1696,8 +1761,9 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46E260, &ResetCrashBonusesASM);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46E47B, &WriteCrashBonusesASM);
 			// crashes are later calculated at 46E516, 46E973, 46E505, 46E513, 46E986
-			// 46E973 is AWFUL, just skipping it entirely for now
-			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46E920, 0x46EBA5);
+
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46E920, 0x46E96E);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x46E96E, &NitroCarCrashASM);
 
 			NyaHookLib::Patch(0x42E1D2 + 2, nNumPlayers * 0xE0);
 			NyaHookLib::Patch(0x42E1DD + 1, nNumPlayers * 0xE0);
