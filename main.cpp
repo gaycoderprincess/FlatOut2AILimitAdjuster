@@ -1971,6 +1971,31 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 
 			lua_setfield_callback = (void(*)(void*, int, const char*))NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x452EC4, &CustomLUAFunctions);
 
+			// add more bits to all previously 4bit synced values
+			uintptr_t a4BitNetVFTs[] = {
+					0x4EC3A7,
+					0x4EC3D3,
+					0x4EC3FF,
+					0x4ECA9D,
+					0x4ECACA,
+					0x4ECAF6,
+					0x4ECCE1,
+					0x4ECD0D,
+					0x4ECD39,
+					0x4ECD65,
+					0x4ECD91,
+					0x4ECFEE,
+					0x4ED01A,
+					0x4ED046,
+					0x4ED072,
+			};
+			for (auto& addr : a4BitNetVFTs) {
+				NyaHookLib::Patch(addr, 0x66E4E4); // replace with int
+			}
+			// add more bits to lobby data
+			NyaHookLib::Fill(0x51AFBB, 0x90, 3); // maxplayers
+			NyaHookLib::Fill(0x51AFE7, 0x90, 3); // numplayers
+
 			// crash quitting a race at 42E9C8
 			// player dtor, car->0x338, its object ptr
 
