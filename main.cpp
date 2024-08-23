@@ -9,6 +9,7 @@
 const size_t nNewPlayerStructCustomVarsBegin = 0xF50; // sizeof AIPlayer
 
 int nNumAI = 7;
+int nNumAIToSpawn = 7;
 int nNumAIProfiles = 7;
 int nNumPlayers = 8;
 int nNumPlayersForPlayerInfo = 8;
@@ -385,6 +386,58 @@ void __attribute__((naked)) ReadPlayerSettingsASM17() {
 		"jmp %0\n\t"
 			:
 			: "m" (ReadPlayerSettingsASM17_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+uintptr_t ReadPlayerSettingsMPASM1_jmp = 0x4DEA7D;
+void __attribute__((naked)) ReadPlayerSettingsMPASM1() {
+	__asm__ (
+		"push eax\n\t"
+		"mov eax, %1\n\t"
+		"lea edi, [edi+eax]\n\t"
+		"pop eax\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsMPASM1_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+uintptr_t ReadPlayerSettingsMPASM2_jmp = 0x4DF33C;
+void __attribute__((naked)) ReadPlayerSettingsMPASM2() {
+	__asm__ (
+		"push eax\n\t"
+		"mov eax, %1\n\t"
+		"mov ecx, [edi+eax+0x40]\n\t"
+		"pop eax\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsMPASM2_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+uintptr_t ReadPlayerSettingsMPASM3_jmp = 0x4DFA34;
+void __attribute__((naked)) ReadPlayerSettingsMPASM3() {
+	__asm__ (
+		"push ecx\n\t"
+		"mov ecx, %1\n\t"
+		"mov edi, [edx+ecx+0x40]\n\t"
+		"pop ecx\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsMPASM3_jmp), "m" (nPlayerSettingsArray)
+	);
+}
+
+uintptr_t ReadPlayerSettingsMPASM4_jmp = 0x4DFF8D;
+void __attribute__((naked)) ReadPlayerSettingsMPASM4() {
+	__asm__ (
+		"push ecx\n\t"
+		"mov ecx, %1\n\t"
+		"mov eax, [edi+ecx+0x40]\n\t"
+		"pop ecx\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (ReadPlayerSettingsMPASM4_jmp), "m" (nPlayerSettingsArray)
 	);
 }
 
@@ -1430,7 +1483,7 @@ void __attribute__((naked)) GetAINameASM() {
 
 auto InitAIHooked_call = (void(__stdcall*)(void*, int))0x45D980;
 void __stdcall InitAIHooked(void* a1, int count) {
-	count = nNumAI;
+	count = nNumAIToSpawn;
 	return InitAIHooked_call(a1, count);
 }
 
@@ -1604,6 +1657,32 @@ void __attribute__((naked)) NitroCarCrashASM() {
 	);
 }
 
+// lua functions
+auto luaL_checknumber = (double(*)(void*, int))0x5B5F20;
+auto lua_setfield = (void(*)(void*, int, const char*))0x5B4E70;
+auto lua_pushcfunction = (void(*)(void*, void*, int))0x5B48A0;
+
+int SetAICount(void* a1) {
+	nNumAIToSpawn = luaL_checknumber(a1, 1);
+	if (nNumAIToSpawn > nNumAI) {
+		MessageBoxA(nullptr, std::format("LUA attempted to set the AI count further than the .toml maximum! (SetAICount({}), max is {})", nNumAIToSpawn, nNumAI).c_str(), "nya?!~", MB_ICONERROR);
+		exit(0);
+	}
+	if (nNumAIToSpawn < 0) {
+		MessageBoxA(nullptr, std::format("LUA attempted to set the AI count to an invalid value! (SetAICount({}))", nNumAIToSpawn).c_str(), "nya?!~", MB_ICONERROR);
+		exit(0);
+	}
+	return 0;
+}
+
+auto lua_setfield_callback = (void(*)(void*, int, const char*))0x5B4E70;
+void CustomLUAFunctions(void* lua, int field, const char* value) {
+	lua_setfield_callback(lua, field, value);
+
+	lua_pushcfunction(lua, (void*)&SetAICount, 0);
+	lua_setfield(lua, -10002, "SetAICount");
+}
+
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
@@ -1616,7 +1695,7 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			// todo extend cupmanager at sub_457710
 
 			auto config = toml::parse_file("FlatOut2AILimitAdjuster_gcp.toml");
-			nNumAI = config["main"]["ai_count"].value_or(7);
+			nNumAIToSpawn = nNumAI = config["main"]["ai_count"].value_or(7);
 			nNumAIProfiles = config["main"]["ai_profile_count"].value_or(7);
 			nNumPlayers = nNumAI + 1;
 			nAISortingThing = new int[nNumPlayers];
@@ -1674,8 +1753,6 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45D883, &InitLocalPlayerSettingsASM2);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45DC80, &GetNumPlayersOfType);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45DA4C, &ReadPlayerSettingsASM);
-
-			// todo mp stuff 4DEA76 4DF335 4DFA2D 4DFF86 still read Game playerinfo!!
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x49F17B, &ReadPlayerSettingsASM2);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4A24E7, &ReadPlayerSettingsASM3);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x497175, &ReadPlayerSettingsASM4);
@@ -1692,6 +1769,10 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x47AC24, &ReadPlayerSettingsASM15);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x484F6B, &ReadPlayerSettingsASM16);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x492DD0, &ReadPlayerSettingsASM17);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4DEA76, &ReadPlayerSettingsMPASM1);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4DF335, &ReadPlayerSettingsMPASM2);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4DFA2D, &ReadPlayerSettingsMPASM3);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4DFF86, &ReadPlayerSettingsMPASM4);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x45E404, &ClearPlayerSettingsASM);
 
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x472663, &PlayerUpdaterASM1);
@@ -1887,6 +1968,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 
 			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x54D273, &PoolMemoryErrorASM1);
 			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x54D306, &PoolMemoryErrorASM2);
+
+			lua_setfield_callback = (void(*)(void*, int, const char*))NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x452EC4, &CustomLUAFunctions);
 
 			// crash quitting a race at 42E9C8
 			// player dtor, car->0x338, its object ptr
