@@ -1697,7 +1697,7 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
 			if (NyaHookLib::GetEntryPoint() != 0x202638) {
-				MessageBoxA(nullptr, "Unsupported game version! Make sure you're using DRM-free v1.2 (.exe size of 2990080 bytes)", "nya?!~", MB_ICONERROR);
+				MessageBoxA(nullptr, aFO2VersionFail, "nya?!~", MB_ICONERROR);
 				exit(0);
 				return TRUE;
 			}
@@ -2008,6 +2008,22 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 
 			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x42077B, &FMODChannels1);
 			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x4207AA, &FMODChannels2);
+
+			NyaHookLib::Patch(0x5A5573 + 1, 32 * 8);
+			NyaHookLib::Patch(0x69D8F8, 32 * 8);
+			NyaHookLib::Patch(0x565A1B + 1, 4096 * 4); // push
+			NyaHookLib::Patch(0x565A44 + 1, 4096 * 4); // add
+			NyaHookLib::Patch(0x565A5D + 1, 4096 * 4); // push
+			NyaHookLib::Patch(0x565A86 + 1, 4096 * 4); // add
+			NyaHookLib::Patch(0x565A91 + 1, 4096 * 4); // push
+			NyaHookLib::Patch(0x565ABA + 1, 4096 * 4); // add
+			NyaHookLib::Patch(0x565AC5 + 1, 4096 * 4); // push
+			NyaHookLib::Patch(0x565AF1 + 1, 4096 * 4); // add
+			NyaHookLib::Patch(0x565B22 + 1, 24 * 10);
+			NyaHookLib::Patch(0x49180A + 1, 2560 * 4);
+			NyaHookLib::Patch(0x491826 + 1, (2560 * 4) / 4);
+
+			// 256 cars crash at 565F67
 
 			// crash quitting a race at 42E9C8
 			// player dtor, car->0x338, its object ptr
