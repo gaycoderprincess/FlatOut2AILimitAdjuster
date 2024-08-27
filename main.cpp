@@ -2009,30 +2009,17 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x42077B, &FMODChannels1);
 			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x4207AA, &FMODChannels2);
 
-			NyaHookLib::Patch(0x5A5573 + 1, 32 * 8);
-			NyaHookLib::Patch(0x69D8F8, 32 * 8);
-			NyaHookLib::Patch(0x565A1B + 1, 4096 * 4); // push
-			NyaHookLib::Patch(0x565A44 + 1, 4096 * 4); // add
-			NyaHookLib::Patch(0x565A5D + 1, 4096 * 4); // push
-			NyaHookLib::Patch(0x565A86 + 1, 4096 * 4); // add
-			NyaHookLib::Patch(0x565A91 + 1, 4096 * 4); // push
-			NyaHookLib::Patch(0x565ABA + 1, 4096 * 4); // add
-			NyaHookLib::Patch(0x565AC5 + 1, 4096 * 4); // push
-			NyaHookLib::Patch(0x565AF1 + 1, 4096 * 4); // add
-			NyaHookLib::Patch(0x565B22 + 1, 24 * 10);
-			NyaHookLib::Patch(0x49180A + 1, 2560 * 4);
-			NyaHookLib::Patch(0x491826 + 1, (2560 * 4) / 4);
+			// increase max textures and vertex/index buffers
+			NyaHookLib::Patch(0x5A5573 + 1, nNumPlayers * 4);
+			NyaHookLib::Patch(0x69D8F8, nNumPlayers * 4);
+
+			// increase some fixed size array used in Player::InitCar at 46B760
+			NyaHookLib::Patch(0x49180A + 1, nNumPlayers * 320);
+			NyaHookLib::Patch(0x491826 + 1, (nNumPlayers * 320) / 4);
 
 			// 256 cars crash at 565F67
-
-			// crash quitting a race at 42E9C8
-			// player dtor, car->0x338, its object ptr
-
-			// crash quitting a race at 532760
-			// freeing something, heap is corrupt
-
-			// 599E7A crashed on 126 player desert oil field
-			// seems to be processing dynamic objects, something overwrote the ptr? this smells like pretty bad heap corruption
+			// SinglePlayerHost+A0 offset
+			// 0x8F0 off that which is set to 0x8EC
 
 			// crash in 45affa with 1024 cars
 			// is this dynamically allocated?
