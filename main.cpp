@@ -3,6 +3,8 @@
 #include "toml++/toml.hpp"
 #include "nya_commonhooklib.h"
 
+#include "../nya-common-fouc/fo2versioncheck.h"
+
 // for debugging the heap corruption at 64 or more cars, no luck so far
 //#include "memoryhook.h"
 
@@ -462,9 +464,12 @@ void __attribute__((naked)) InitLocalPlayerSettingsASM1() {
 	__asm__ (
 		"mov edx, %1\n\t"
 		"xor eax, eax\n\t"
+		"pushad\n\t"
+		"call %2\n\t"
+		"popad\n\t"
 		"jmp %0\n\t"
 			:
-			: "m" (InitLocalPlayerSettingsASM1_jmp), "m" (nPlayerSettingsArray)
+			: "m" (InitLocalPlayerSettingsASM1_jmp), "m" (nPlayerSettingsArray), "i" (ClearPlayerSettings)
 	);
 }
 
@@ -473,9 +478,12 @@ void __attribute__((naked)) InitLocalPlayerSettingsASM2() {
 	__asm__ (
 		"mov edx, %1\n\t"
 		"push edi\n\t"
+		"pushad\n\t"
+		"call %2\n\t"
+		"popad\n\t"
 		"jmp %0\n\t"
 			:
-			: "m" (InitLocalPlayerSettingsASM2_jmp), "m" (nPlayerSettingsArray)
+			: "m" (InitLocalPlayerSettingsASM2_jmp), "m" (nPlayerSettingsArray), "i" (ClearPlayerSettings)
 	);
 }
 
@@ -1696,11 +1704,7 @@ void __stdcall FMODChannels2(int a1, int a2, int a3) {
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
-			if (NyaHookLib::GetEntryPoint() != 0x202638) {
-				MessageBoxA(nullptr, aFO2VersionFail, "nya?!~", MB_ICONERROR);
-				exit(0);
-				return TRUE;
-			}
+			DoFlatOutVersionCheck(FO2Version::FO2_1_2);
 
 			// todo extend cupmanager at sub_457710
 
