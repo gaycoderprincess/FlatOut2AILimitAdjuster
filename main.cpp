@@ -2021,6 +2021,24 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::Patch(0x49180A + 1, nNumPlayers * 320);
 			NyaHookLib::Patch(0x491826 + 1, (nNumPlayers * 320) / 4);
 
+			// unique listnode errors for debugging in case it occurs again
+			NyaHookLib::Patch(0x5577B2 + 1, "failed to allocate listnodes! 0x5577B2");
+			NyaHookLib::Patch(0x57B092 + 1, "failed to allocate listnodes! 0x57B092");
+			NyaHookLib::Patch(0x57B2B7 + 1, "failed to allocate listnodes! 0x57B2B7");
+			NyaHookLib::Patch(0x57B98C + 1, "failed to allocate listnodes! 0x57B98C");
+			NyaHookLib::Patch(0x58BC4C + 1, "failed to allocate listnodes! 0x58BC4C");
+			NyaHookLib::Patch(0x59BBBC + 1, "failed to allocate listnodes! 0x59BBBC");
+			NyaHookLib::Patch(0x5A58F0 + 1, "failed to allocate listnodes! 0x5A58F0");
+			NyaHookLib::Patch(0x5ABBA9 + 1, "failed to allocate listnodes! 0x5ABBA9");
+			NyaHookLib::Patch(0x5ABC6D + 1, "failed to allocate listnodes! 0x5ABC6D");
+			NyaHookLib::Patch(0x5AEE11 + 1, "failed to allocate listnodes! 0x5AEE11");
+			NyaHookLib::Patch(0x5AEF3E + 1, "failed to allocate listnodes! 0x5AEF3E");
+			NyaHookLib::Patch(0x5AF399 + 1, "failed to allocate listnodes! 0x5AF399");
+			NyaHookLib::Patch(0x5AF5CA + 1, "failed to allocate listnodes! 0x5AF5CA");
+			NyaHookLib::Patch(0x5AF824 + 1, "failed to allocate listnodes! 0x5AF824");
+			NyaHookLib::Patch(0x5AF9E8 + 1, "failed to allocate listnodes! 0x5AF9E8");
+			NyaHookLib::Patch(0x5AFBBB + 1, "failed to allocate listnodes! 0x5AFBBB");
+
 			// 256 cars crash at 565F67
 			// SinglePlayerHost+A0 offset
 			// 0x8F0 off that which is set to 0x8EC
