@@ -1701,6 +1701,33 @@ void __stdcall FMODChannels2(int a1, int a2, int a3) {
 	FMODChannels2_call(a1, 1024, a3);
 }
 
+uint32_t nDriverHandsListSize = 0x64;
+uint32_t nDriverHandsListEnd = 0x58;
+uintptr_t DriverHandsListnodeInitASM_jmp = 0x6502FB;
+void __attribute__((naked)) DriverHandsListnodeInitASM() {
+	__asm__ (
+		"push 0x6516B0\n\t"
+		"mov ecx, %1\n\t"
+		"mov [edx+ecx], eax\n\t"
+		"mov ecx, edi\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (DriverHandsListnodeInitASM_jmp), "m" (nDriverHandsListEnd)
+	);
+}
+
+uintptr_t DriverHandsListnodeInitASM2_call = 0x6035CE;
+uintptr_t DriverHandsListnodeInitASM2_jmp = 0x6502C7;
+void __attribute__((naked)) DriverHandsListnodeInitASM2() {
+	__asm__ (
+		"push %1\n\t"
+		"call %2\n\t"
+		"jmp %0\n\t"
+			:
+			: "m" (DriverHandsListnodeInitASM2_jmp), "m" (nDriverHandsListSize), "m" (DriverHandsListnodeInitASM2_call)
+	);
+}
+
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
@@ -1871,9 +1898,19 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			// this seems to be a "has collided" bool array but it's never read, only written to
 			NyaHookLib::Fill(0x46E579, 0x90, 0x46E57E - 0x46E579);
 
+			if (nNumPlayers > 8) {
+				int listnodeCount = nNumPlayers * 4;
+				int listnodeInitCount = listnodeCount - 1;
+				int listnodeSize = (listnodeCount * 0xC) + 0x4;
+				nDriverHandsListSize = listnodeSize;
+				nDriverHandsListEnd = listnodeSize - 0xC;
+				NyaHookLib::Patch(0x6502DD + 1, listnodeInitCount);
+				NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x6502F3, &DriverHandsListnodeInitASM);
+				NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x6502C0, &DriverHandsListnodeInitASM2);
+			}
 			// 33 and above runs out of listnodes at 57B991
-			if (nNumPlayers > 32) {
-				int listnodeCount = nNumPlayers;
+			if (nNumPlayers > 8) {
+				int listnodeCount = nNumPlayers * 4;
 				int listnodeInitCount = listnodeCount - 1;
 				int listnodeSize = (listnodeCount * 0xC) + 0x4;
 				int listnodeLastOffset = listnodeSize - 0xC;
@@ -1882,7 +1919,7 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 				NyaHookLib::Patch(0x65028B + 2, listnodeLastOffset);
 			}
 			// and 58BC56
-			if (nNumPlayers > 32) {
+			if (nNumPlayers > 8) {
 				// size 128 for 32 cars
 				int listnodeCount = nNumPlayers * 4;
 				int listnodeInitCount = listnodeCount - 1;
@@ -1893,8 +1930,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 				NyaHookLib::Patch(0x6504FB + 2, listnodeLastOffset);
 			}
 			// ragdoll data
-			if (nNumAIProfiles > 15) {
-				int listnodeCount = (nNumAIProfiles + 1) * 4;
+			if (nNumPlayers > 8) {
+				int listnodeCount = nNumPlayers * 4;
 				int listnodeInitCount = listnodeCount - 1;
 				int listnodeSize = (listnodeCount * 0xC) + 0x4;
 				int listnodeLastOffset = listnodeSize - 0xC;
@@ -1903,8 +1940,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 				NyaHookLib::Patch(0x6507CB + 2, listnodeLastOffset);
 			}
 			// driver model
-			if (nNumAIProfiles > 15) {
-				int listnodeCount = (nNumAIProfiles + 1) * 4;
+			if (nNumPlayers > 8) {
+				int listnodeCount = nNumPlayers * 4;
 				int listnodeInitCount = listnodeCount - 1;
 				int listnodeSize = (listnodeCount * 0xC) + 0x4;
 				int listnodeLastOffset = listnodeSize - 0xC;
