@@ -5,6 +5,11 @@ Plugin to increase the maximum amount of AI opponents in FlatOut 2
 ![128 cars preview](https://i.imgur.com/Vl8u9mL.png)
 ![fouc ai preview](https://i.imgur.com/QBhbm3R.png)
 
+# Disclaimer
+
+Due to the current programming landscape, I feel that it's necessary to explicitly state that this project had zero assistance or any other kind of involvement from any sort of "AI agent" and it never will.  
+This mod was entirely built by hand, by a human being, and I believe that any project that cannot also claim this about itself is not worth people's time. The only acceptable amount of AI use is zero AI use.
+
 ## Installation
 
 - Make sure you have v1.2 of the game, as this is the only version this plugin is compatible with. (exe size of 2990080 bytes)
